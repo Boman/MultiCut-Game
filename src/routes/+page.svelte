@@ -1,57 +1,41 @@
-<script>
-	import Counter from '$lib/Counter.svelte';
+<script lang="ts">
+  import { onMount } from "svelte";
+  import * as d3 from "d3";
+  import { ForceGraph } from "$lib/ForceGraph";
+  import miserables from "$lib/data/test_data.json";
+
+  let vis: HTMLDivElement; // binding with div for visualization
+
+  onMount(() => {
+    d3.select(vis).html(null);
+
+    let chart = ForceGraph(miserables, {
+      nodeId: (d) => d.id,
+      nodeTitle: (d) => `${d.id}\n${d.group}`,
+      linkStrokeWidth: (l) => 3 * Math.sqrt(Math.abs(l.value)),
+      linkStroke: (l) => (l.value > 0 ? "green" : "red"),
+      nodeRadius: 25,
+      linkStrength: 0.01,
+      nodeStrength: -200,
+    });
+
+    const svg = d3.select(vis).append(() => chart);
+  });
 </script>
 
-<svelte:head>
-	<title>Home</title>
-	<meta name="description" content="Svelte demo app" />
-</svelte:head>
-
-<section>
-	<h1>
-		<span class="welcome">
-			<picture>
-				<source srcset="svelte-welcome.webp" type="image/webp" />
-				<img src="svelte-welcome.png" alt="Welcome" />
-			</picture>
-		</span>
-
-		to your new<br />SvelteKit app
-	</h1>
-
-	<h2>
-		try editing <strong>src/routes/index.svelte</strong>
-	</h2>
-
-	<Counter />
-</section>
+<main>
+  <div id="vis" bind:this={vis} />
+</main>
 
 <style>
-	section {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		flex: 1;
-	}
+  main {
+    height: 100vh;
+    display: flex;
+  }
 
-	h1 {
-		width: 100%;
-	}
-
-	.welcome {
-		display: block;
-		position: relative;
-		width: 100%;
-		height: 0;
-		padding: 0 0 calc(100% * 495 / 2048) 0;
-	}
-
-	.welcome img {
-		position: absolute;
-		width: 100%;
-		height: 100%;
-		top: 0;
-		display: block;
-	}
+  #vis {
+    width: 100%;
+    height: 100vh;
+    background-color: whitesmoke;
+  }
 </style>
