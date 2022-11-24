@@ -79,11 +79,6 @@
             "source": "f",
             "target": "e",
             "value": 10
-        },
-        {
-            "source": "a",
-            "target": "e",
-            "value": 6
         }
     ]
 }

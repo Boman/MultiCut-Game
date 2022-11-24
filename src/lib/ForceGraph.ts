@@ -111,20 +111,20 @@ export function ForceGraph(
             return links[i].value;
         });
 
-    var points_label = svg
+    var score_label = svg
         .append("text")
         .attr("font-size", 42)
-        .attr("id", "points_label")
+        .attr("id", "score_label")
         .attr("x", -width / 2 + 10)
         .attr("y", height / 2 - 10)
-        .text("Points: 0");
+        .text("Score: 0");
 
     if (W) link.attr("stroke-width", ({ index: i }) => W[i]);
     if (L) link.attr("stroke", ({ index: i }) => L[i]);
     if (G) node.attr("fill", ({ index: i }) => color(G[i]));
     if (T) node.append("title").text(({ index: i }) => T[i]);
 
-    calcPoints();
+    calcScore();
 
     function intern(value) {
         return value !== null && typeof value === "object"
@@ -189,7 +189,7 @@ export function ForceGraph(
                     event.subject.x = event.subject.beforeDragX;
                     event.subject.y = event.subject.beforeDragY;
                 }
-                calcPoints()
+                calcScore()
             }
         }
 
@@ -209,18 +209,18 @@ export function ForceGraph(
             if (n.length > 0) {
                 G[i] = n[0];
                 node.attr("fill", ({ index: i }) => color(G[i]));
-                calcPoints()
+                calcScore()
             }
         }
     }
 
-    function calcPoints() {
-        let points = 0
-        points = links.map(l => G[nodes.indexOf(l.source)] == G[nodes.indexOf(l.target)] ? 0 : l.value).reduce((a, b) => a + b)
-        d3.select("#points_label").text("Points: " + points)
+    function calcScore() {
+        let score = 0
+        score = links.map(l => G[nodes.indexOf(l.source)] != G[nodes.indexOf(l.target)] ? 0 : l.value).reduce((a, b) => a + b)
+        d3.select("#score_label").text("Score: " + score)
 
         link.attr("stroke-dasharray", function (d, i) {
-            if (G[d.source.index] == G[d.target.index]) {
+            if (G[d.source.index] != G[d.target.index]) {
                 return "10, 30"
             } else {
                 return "10, 0"
