@@ -2,7 +2,8 @@
   import { onMount } from "svelte";
   import * as d3 from "d3";
   import { ForceGraph } from "$lib/ForceGraph";
-  import miserables from "$lib/data/test_data.json";
+  //import miserables from "$lib/data/test_data.json";
+  import miserables from "$lib/data/l5.json";
 
   let vis: HTMLDivElement; // binding with div for visualization
 
@@ -15,8 +16,8 @@
       linkStrokeWidth: (l) => 3 * Math.sqrt(Math.abs(l.value)),
       linkStroke: (l) => (l.value > 0 ? "green" : "red"),
       nodeRadius: 25,
-      linkStrength: 0.01,
-      nodeStrength: -200,
+      linkStrength: 0.4,
+      nodeStrength: -500,
     });
 
     const svg = d3.select(vis).append(() => chart);

@@ -25,7 +25,7 @@ export function ForceGraph(
         linkStrokeWidth = 1.5, // given d in links, returns a stroke width in pixels
         linkStrokeLinecap = "round", // link stroke linecap
         linkStrength,
-        colors = d3.schemeTableau10, // an array of color strings, for the node groups
+        colors = d3.schemeDark2, // an array of color strings, for the node groups
         width = 1400, // outer width, in pixels
         height = 700, // outer height, in pixels
     } = {}
@@ -43,7 +43,7 @@ export function ForceGraph(
             ? null
             : d3.map(links, linkStrokeWidth);
     const L =
-        typeof linkStroke !== "function" ? null : d3.map(links, linkStroke);
+        typeof linkStroke !== "function" ? null : d3.map(d3.map(links, linkStroke), d3.color);
 
     // Replace the input nodes and links with mutable objects for the simulation.
     nodes = d3.map(nodes, (_, i) => ({ id: N[i] }));
@@ -70,7 +70,16 @@ export function ForceGraph(
         .attr("width", width)
         .attr("height", height)
         .attr("viewBox", [-width / 2, -height / 2, width, height])
-        .attr("style", "max-width: 100%; height: auto; height: intrinsic;;");
+        .attr("style", "max-width: 100%; height: auto; height: intrinsic;");
+
+    var background = svg.append("rect")
+        .attr("x", -width / 2)
+        .attr("y", -height / 2)
+        .attr("width", width)
+        .attr("height", height)
+        .attr("style", "fill: whitesmoke;")
+        .call(dragBackground(simulation))
+        .on("click", function (d) { click(d, null); });
 
     const link = svg
         .append("g")
@@ -100,7 +109,8 @@ export function ForceGraph(
         .join("circle")
         .attr("r", nodeRadius)
         .call(drag(simulation))
-        .on("click", click);
+        .on("click", click)
+        .on("dblclick", dblclick);
 
     var link_label = svg.selectAll(".link_label")
         .data(links)
@@ -148,6 +158,36 @@ export function ForceGraph(
                 var line_node = d3.select("#link_" + i)
                 return (parseInt(line_node.attr("y1")) + parseInt(line_node.attr("y2"))) / 2;
             })
+    }
+
+    function dragBackground(simulation) {
+        function dragstarted(event) {
+        }
+
+        function dragged(event) {
+            let filteredNodes = nodes.filter(n => Math.sqrt(Math.pow(n.x - event.x, 2) + Math.pow(n.y - event.y, 2)) < nodeRadius);
+
+            if (filteredNodes.length > 0 && clickedNode != -1) {
+                filteredNodes.forEach(n => {
+                    updateNodeCluster(nodes.indexOf(n), clickedNode);
+                });
+            }
+        }
+
+        function dragended(event) {
+        }
+
+        return d3
+            .drag()
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            .on("end", dragended);
+    }
+
+    function updateNodeCluster(newNode, clusterNode) {
+        G[newNode] = G[clusterNode];
+        greyOut();
+        calcScore();
     }
 
     function drag(simulation) {
@@ -200,7 +240,26 @@ export function ForceGraph(
             .on("end", dragended);
     }
 
+    let clickedNode: number = -1
+
     function click(event, d) {
+        let i: number = nodes.indexOf(d);
+        clickedNode = i;
+        greyOut();
+    }
+
+    function greyOut() {
+        if (G) {
+            node.attr("fill",
+                ({ index: i }) => saturate(color(G[i]), clickedNode == i || clickedNode == -1 || G[clickedNode] == G[i] ? 1 : 0.32));
+        }
+        if (L) {
+            link.attr("stroke",
+                ({ index: i }) => saturate(L[i], clickedNode == -1 || G[nodes.indexOf(links[i].source)] == G[nodes.indexOf(links[i].target)] ? 1 : 0.32));
+        }
+    }
+
+    function dblclick(event, d) {
         let i: number = nodes.indexOf(d);
         // if node is not a singleton
         if (G.filter(x => x == G[i]).length > 1) {
@@ -208,7 +267,8 @@ export function ForceGraph(
             let n = Array.from(Array(nodes.length).keys()).filter(x => !G.includes(x));
             if (n.length > 0) {
                 G[i] = n[0];
-                node.attr("fill", ({ index: i }) => color(G[i]));
+                clickedNode = -1;
+                greyOut();
                 calcScore()
             }
         }
@@ -226,7 +286,11 @@ export function ForceGraph(
                 return "10, 0"
             }
         })
+    }
 
+    function saturate(color, k = 1) {
+        const { l, c, h } = d3.lch(color);
+        return d3.lch(l + 30 * (1 - k), c * k, h);
     }
 
     return Object.assign(svg.node(), { scales: { color } });
