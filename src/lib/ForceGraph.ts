@@ -16,7 +16,6 @@ export function ForceGraph(
         nodeStrokeWidth = 1.5, // node stroke width, in pixels
         nodeStrokeOpacity = 1, // node stroke opacity
         nodeRadius = 5, // node radius, in pixels
-        nodeStrength,
         linkSource = ({ source }) => source, // given d in links, returns a node identifier string
         linkTarget = ({ target }) => target, // given d in links, returns a node identifier string
         linkValue = ({ value }) => value, // given d in links, returns a node identifier string
@@ -24,10 +23,10 @@ export function ForceGraph(
         linkStrokeOpacity = 0.6, // link stroke opacity
         linkStrokeWidth = 1.5, // given d in links, returns a stroke width in pixels
         linkStrokeLinecap = "round", // link stroke linecap
-        linkStrength,
         colors = d3.schemeDark2, // an array of color strings, for the node groups
         width = 1400, // outer width, in pixels
         height = 700, // outer height, in pixels
+        svg
     } = {}
 ) {
     // Compute values.
@@ -53,24 +52,22 @@ export function ForceGraph(
     const color = d3.scaleOrdinal(G, colors);
 
     // Construct the forces.
-    const forceNode = d3.forceManyBody();
-    const forceLink = d3.forceLink(links).id(({ index: i }) => N[i]);
-    if (nodeStrength !== undefined) forceNode.strength(nodeStrength);
-    if (linkStrength !== undefined) forceLink.strength(linkStrength);
+    const forceNode = d3.forceManyBody().strength(-200);
+    const forceLink = d3.forceLink(links).id(({ index: i }) => N[i]).strength(0.4);
+
+    const alphaTarget = 0.01
 
     const simulation = d3
         .forceSimulation(nodes)
         .force("link", forceLink)
         .force("charge", forceNode)
-        .force("center", d3.forceCenter().strength(0.01))
-        .on("tick", ticked);
-
-    const svg = d3
-        .create("svg")
-        .attr("width", width)
-        .attr("height", height)
-        .attr("viewBox", [-width / 2, -height / 2, width, height])
-        .attr("style", "max-width: 100%; height: auto; height: intrinsic;");
+        .force("center", d3.forceCenter().strength(0.9))
+        .force("x", d3.forceX(width / 2).strength(0.01))
+        .force("y", d3.forceY(height / 2).strength(0.01))
+        .force("cluster", forceCluster(0.02))
+        .on("tick", ticked)
+        .alphaTarget(alphaTarget)
+        .alphaDecay(0.01);
 
     var background = svg.append("rect")
         .attr("x", -width / 2)
@@ -211,7 +208,7 @@ export function ForceGraph(
         }
 
         function dragended(event) {
-            if (!event.active) simulation.alphaTarget(0);
+            if (!event.active) simulation.alphaTarget(alphaTarget);
             event.subject.fx = null;
             event.subject.fy = null;
 
@@ -293,5 +290,31 @@ export function ForceGraph(
         return d3.lch(l + 30 * (1 - k), c * k, h);
     }
 
-    return Object.assign(svg.node(), { scales: { color } });
+    function forceCluster(strength = 0.1) {
+        let nodes;
+
+        function force(alpha) {
+            const centroids = d3.rollup(nodes, centroid, d => G[nodes.indexOf(d)]);
+            const l = alpha * strength;
+            for (const d of nodes) {
+                const { x: cx, y: cy } = centroids.get(G[nodes.indexOf(d)]);
+                d.vx -= (d.x - cx) * l;
+                d.vy -= (d.y - cy) * l;
+            }
+        }
+
+        force.initialize = _ => nodes = _;
+
+        return force;
+    }
+
+    function centroid(nodes) {
+        let x = 0;
+        let y = 0;
+        for (const d of nodes) {
+            x += d.x;
+            y += d.y;
+        }
+        return { x: x, y: y };
+    }
 }

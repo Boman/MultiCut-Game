@@ -43,3 +43,24 @@
 <main>
   <pre>{content}</pre>
 </main>
+
+<style>
+  html,
+  body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+  }
+  body {
+    background-color: var(--dark-gray);
+    background-image: radial-gradient(circle, var(--dark-gray), black);
+    display: flex;
+    flex-direction: column;
+    font-family: -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    opacity: 1;
+    overflow: hidden;
+    padding: 0;
+    transition: opacity 1s;
+  }
+</style>
