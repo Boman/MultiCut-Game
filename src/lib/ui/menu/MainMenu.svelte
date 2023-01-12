@@ -7,7 +7,9 @@
     import {day, save, soundEffects, timeLeft, loadedGraph} from '$lib/store'
     import AboutMenu from '$lib/ui/menu/AboutMenu.svelte'
     import Achievements from '$lib/ui/menu/Achievements.svelte'
-    import NewGameMenu from '$lib/ui/menu/NewGameMenu.svelte'
+    import CampaignMenu from '$lib/ui/menu/CampaignMenu.svelte'
+    import NewRandomMenu from '$lib/ui/menu/NewRandomMenu.svelte'
+    import NewLadderMenu from '$lib/ui/menu/NewLadderMenu.svelte'
     import WinScreen from '$lib/ui/menu/WinScreen.svelte'
     import graphData from '$lib/data/l5.json'
     import {randomGraph} from '$lib/graph/graph'
@@ -27,28 +29,29 @@
 {/if}
 
 <div class="flex flex-col">
-  <!--  
     <button
         on:click={() => {
-            newDailyQuest()
-            toggleMenu()
+            setActiveMenu(CampaignMenu)
         }}
-        disabled={disabledDailyQuest}
-        class="flex items-center justify-between p-2 mb-2 text-xl text-black transition rounded-md bg-foreground-light hover:bg-background hover:text-foreground disabled:bg-background-dark disabled:text-foreground disabled:cursor-not-allowed disabled:hover:scale-105"
+        class="p-2 mb-2 text-xl text-black transition-colors rounded-md bg-foreground-light hover:bg-background hover:text-foreground"
     >
-        <span class="w-1/3" />
-        <span class="flex items-center justify-center w-1/3 whitespace-nowrap"><span class:hidden={!disabledDailyQuest} class="mr-2"><IconLock /></span>DAILY QUEST</span>
-        <span class="flex justify-end w-1/3 text-sm">{$timeLeft}</span>
+        Campaign
     </button>
--->
     <button
         on:click={() => {
-            //loadedGraph.set(graphData)
-            setActiveMenu(NewGameMenu)
+            setActiveMenu(NewRandomMenu)
         }}
         class="p-2 mb-2 text-xl text-black transition-colors rounded-md bg-foreground-light hover:bg-background hover:text-foreground"
     >
         Random Level
+    </button>
+    <button
+        on:click={() => {
+            setActiveMenu(NewLadderMenu)
+        }}
+        class="p-2 mb-2 text-xl text-black transition-colors rounded-md bg-foreground-light hover:bg-background hover:text-foreground"
+    >
+        Möbius Ladder
     </button>
     <!--
     <button

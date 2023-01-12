@@ -45,7 +45,6 @@ export function randomGraph(N = 10, sparseness = 0.5) {
     }
 
     for (let i = 0; i < sparseness * sparseness * (N - 1) * (N - 2) / 2; i++) {
-        console.log("sparseness links: ", i)
         const index = Math.floor(Math.random() * allLinks.length)
         const { source, target } = allLinks[index]
         let value = Math.floor(Math.random() * 18) - 8
@@ -55,14 +54,54 @@ export function randomGraph(N = 10, sparseness = 0.5) {
         links.push({
             'source': source,
             'target': target,
-            'value': -9
+            'value': value
         })
         allLinks.splice(index, 1)
         //allLinks = allLinks.filter(l => (l.source != source && l.target != target) || (l.source != target && l.target != source))
     }
 
-    console.log(nodes)
-    console.log(links)
+    return { 'nodes': nodes, 'links': links }
+}
+
+export function ladderGraph(N = 10) {
+    let nodes = []
+    for (let i = 0; i < N * 2; i++) {
+        nodes.push({ 'id': i });
+    }
+
+    let links = []
+
+    for (let i = 0; i < N; i++) {
+        let value = Math.floor(Math.random() * 18) - 8
+        if (value <= 0) {
+            value -= 1
+        }
+        links.push({
+            'source': i * 2,
+            'target': i * 2 + 1,
+            'value': value
+        })
+
+        value = Math.floor(Math.random() * 18) - 8
+        if (value <= 0) {
+            value -= 1
+        }
+        links.push({
+            'source': i * 2,
+            'target': ((i + 1) % N) * 2 + Math.floor((i + 1) / N),
+            'value': value
+        })
+
+        value = Math.floor(Math.random() * 18) - 8
+        if (value <= 0) {
+            value -= 1
+        }
+        links.push({
+            'source': i * 2 + 1,
+            'target': ((i + 1) % N) * 2 + 1 - Math.floor((i + 1) / N),
+            'value': value
+        })
+    }
 
     return { 'nodes': nodes, 'links': links }
 }

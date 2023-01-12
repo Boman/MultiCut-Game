@@ -1,0 +1,61 @@
+{
+    "nodes": [
+        {
+            "id": "x0,y0"
+        },
+        {
+            "id": "x0,y1"
+        },
+        {
+            "id": "x0,y2"
+        },
+        {
+            "id": "x1,y0"
+        },
+        {
+            "id": "x1,y1"
+        }
+    ],
+    "links": [
+        {
+            "source": "x0,y0",
+            "target": "x0,y1",
+            "value": 9
+        },
+        {
+            "source": "x0,y0",
+            "target": "x1,y0",
+            "value": 6
+        },
+        {
+            "source": "x0,y0",
+            "target": "x1,y1",
+            "value": -7
+        },
+        {
+            "source": "x0,y1",
+            "target": "x1,y1",
+            "value": -2
+        },
+        {
+            "source": "x0,y1",
+            "target": "x1,y0",
+            "value": -8
+        },
+        {
+            "source": "x1,y0",
+            "target": "x1,y1",
+            "value": -4
+        },
+        {
+            "source": "x0,y1",
+            "target": "x0,y2",
+            "value": -4
+        },
+        {
+            "source": "x1,y1",
+            "target": "x0,y2",
+            "value": 5
+        }
+    ]
+}

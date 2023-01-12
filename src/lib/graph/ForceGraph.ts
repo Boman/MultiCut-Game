@@ -15,7 +15,7 @@ export function ForceGraph(
         nodeStroke = "#fff", // node stroke color
         nodeStrokeWidth = 1.5, // node stroke width, in pixels
         nodeStrokeOpacity = 1, // node stroke opacity
-        nodeRadius = 20, // node radius, in pixels
+        nodeRadius = 25, // node radius, in pixels
         linkSource = ({ source }) => source, // given d in links, returns a node identifier string
         linkTarget = ({ target }) => target, // given d in links, returns a node identifier string
         linkValue = ({ value }) => value, // given d in links, returns a node identifier string
@@ -66,7 +66,7 @@ export function ForceGraph(
         //.force("x", d3.forceX(width / 2).strength(0.01))
         //.force("y", d3.forceY(height / 2).strength(0.01))
         //.force("cluster", forceCluster(0.02))
-        .force("collide", d3.forceCollide(nodeRadius * 3).strength(0.3))
+        .force("collide", d3.forceCollide(nodeRadius * 2.5).strength(0.3))
         .on("tick", ticked)
         .alphaTarget(alphaTarget)
         .alphaDecay(0.01);
@@ -118,7 +118,8 @@ export function ForceGraph(
         .attr("font-size", 32)
         .text(function (d, i) {
             return links[i].value;
-        });
+        })
+        .append("cirlce").attr("r", 10).attr("fill", "black")
 
     if (W) link.attr("stroke-width", ({ index: i }) => W[i]);
     if (L) link.attr("stroke", ({ index: i }) => L[i]);

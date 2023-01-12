@@ -4,7 +4,7 @@
     import {onMount} from 'svelte'
 
     //import graphData from '$lib/data/test_data.json'
-    import graphData from '$lib/data/l5.json'
+    import graphData from '$lib/data/tutorial.json'
     import {loadMap} from '$lib/map'
     import Graph from '$lib/graph/Graph.svelte'
     import {clientX, clientY, day, geojson, geometries, loadedGraph, loadedMap, maps, mousePos, save, showDebug} from '$lib/store'
