@@ -7,7 +7,6 @@
     import {day, save, soundEffects, timeLeft, loadedGraph} from '$lib/store'
     import AboutMenu from '$lib/ui/menu/AboutMenu.svelte'
     import Achievements from '$lib/ui/menu/Achievements.svelte'
-    import CampaignMenu from '$lib/ui/menu/CampaignMenu.svelte'
     import NewRandomMenu from '$lib/ui/menu/NewRandomMenu.svelte'
     import NewLadderMenu from '$lib/ui/menu/NewLadderMenu.svelte'
     import WinScreen from '$lib/ui/menu/WinScreen.svelte'

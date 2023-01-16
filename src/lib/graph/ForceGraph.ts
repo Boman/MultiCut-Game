@@ -119,7 +119,7 @@ export function ForceGraph(
         .text(function (d, i) {
             return links[i].value;
         })
-        .append("cirlce").attr("r", 10).attr("fill", "black")
+        //.append("cirlce").attr("r", 10).attr("fill", "black")
 
     if (W) link.attr("stroke-width", ({ index: i }) => W[i]);
     if (L) link.attr("stroke", ({ index: i }) => L[i]);

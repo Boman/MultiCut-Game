@@ -1,35 +1,13 @@
 import * as d3 from 'd3'
-import {geoMiller, geoPatterson, geoRobinson} from 'd3-geo-projection'
 import {derived, readable, writable} from 'svelte/store'
-import * as topojsonClient from 'topojson-client'
 
 import {browser} from '$app/environment'
 
 // Constants
 const dateZero = new Date('February 19, 2022 03:00:00')
 const oneDay = 24 * 3600 * 1000
-export const countryColors = writable(['fill-blue', 'fill-yellow', 'fill-green', 'fill-red'])
-export const projections = [
-    {func: geoPatterson(), name: 'Patterson'},
-    {func: geoRobinson(), name: 'Robinson'},
-    {func: geoMiller(), name: 'Miller'},
-    {func: d3.geoMercator(), name: 'Mercator'},
-    {func: d3.geoOrthographic(), name: 'Globe'}
-]
-export const maps = [
-    {topojson: import('$lib/assets/maps/topojson/world.json'), name: 'World', data: {countries: import('$lib/assets/data/countries.json')}},
-    {topojson: import('$lib/assets/maps/topojson/us-states.json'), name: 'US States', data: {states: import('$lib/assets/data/us-states.json')}}
-]
-
 // Graph
 export const loadedGraph = writable()
-
-// Map
-export const loadedMap = writable()
-export const topojson = derived(loadedMap, $loadedMap => $loadedMap?.topojson)
-export const geojson = derived(topojson, $topojson => ($topojson ? topojsonClient.feature($topojson, Object.keys($topojson?.objects)[0]) : undefined))
-export const geometries = derived(topojson, $topojson => ($topojson ? Object.values($topojson?.objects)[0].geometries : undefined))
-export const projection = writable(projections[0].func)
 
 // Settings
 export const soundEffects = writable(true)

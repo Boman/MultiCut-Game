@@ -2,44 +2,13 @@
     import _ from 'lodash'
     import {fade} from 'svelte/transition'
 
-    import tagsGroup from '$lib/assets/data/tags.json'
-    import {maps, loadedGraph} from '$lib/store'
-    import {getFeaturesFromTags} from '$lib/utils'
+    import {loadedGraph} from '$lib/store'
     import {ladderGraph} from '$lib/graph/graph'
 
     export let newGame
     export let toggleMenu
 
     let steps = 10
-
-    let mapId = 0
-    let tags = []
-
-    function loadTags() {
-        const group = tagsGroup[maps[mapId].name]
-        tags = _(group)
-            .omit(['meta'])
-            .map(g => Object.values(g))
-            .flatten()
-            .uniq()
-            .sort()
-            .map(tag => ({name: tag, checked: group.meta.defaults.includes(tag)}))
-            .value()
-    }
-
-    loadTags()
-
-    $: map = maps[mapId]
-    $: selectedTags = _(tags)
-        .filter(tag => tag.checked)
-        .map(tag => tag.name)
-        .value()
-    $: unselected = _(tags)
-        .filter(tag => !tag.checked)
-        .map(tag => tag.name)
-        .value()
-
-    $: disabled = selectedTags.length === 0
 </script>
 
 <div class="flex flex-col">
