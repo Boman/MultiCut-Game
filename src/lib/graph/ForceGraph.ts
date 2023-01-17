@@ -19,8 +19,6 @@ export function ForceGraph(
         linkSource = ({ source }) => source, // given d in links, returns a node identifier string
         linkTarget = ({ target }) => target, // given d in links, returns a node identifier string
         linkValue = ({ value }) => value, // given d in links, returns a node identifier string
-        linkStroke = "#999", // link stroke color
-        linkStrokeOpacity = 0.6, // link stroke opacity
         linkStrokeWidth = 1.5, // given d in links, returns a stroke width in pixels
         linkStrokeLinecap = "round", // link stroke linecap
         colors = d3.schemeDark2, // an array of color strings, for the node groups
@@ -78,7 +76,11 @@ export function ForceGraph(
         .attr("height", height)
         .attr("style", "fill: black; fill-opacity: 0.0")
         .call(dragBackground(simulation))
-        .on("click", function (d) { click(d, null); });
+        .on("click", function (d) { click(d, null); })
+
+    function linkStroke(l) {
+        return l.value > 0 ? '#66B366' : '#FF6666'
+    }
 
     const link = svg
         .append("g")
@@ -86,7 +88,6 @@ export function ForceGraph(
             "stroke",
             typeof linkStroke !== "function" ? linkStroke : null
         )
-        .attr("stroke-opacity", linkStrokeOpacity)
         .attr(
             "stroke-width",
             typeof linkStrokeWidth !== "function" ? linkStrokeWidth : null
@@ -96,6 +97,36 @@ export function ForceGraph(
         .data(links)
         .join("line")
         .attr("id", ({ index: i }) => "link_" + i);
+
+    var link_annotations = svg.selectAll(".link_annotations")
+        .data(links)
+        .enter()
+        .append("g")
+
+    function link_circle_color(value) {
+        return value > 0 ? "#D1E8D1" : "#FFB1B1"
+    }
+
+    var link_circles_background = link_annotations
+        .append("circle")
+        .attr("r", 13)
+        .attr("cx", 0)
+        .attr("cy", 0)
+        .attr("fill", "white")
+
+    var link_circles = link_annotations
+        .append("circle")
+        .attr("r", 13)
+        .attr("cx", 0)
+        .attr("cy", 0)
+        .attr("fill", (d, i) => link_circle_color(links[i].value))
+
+    var link_label = link_annotations
+        .append("text")
+        .attr("font-size", 20)
+        .attr("text-anchor", "middle")
+        .attr("alignment-baseline", "central")
+        .text((d, i) => links[i].value)
 
     const node = svg
         .append("g")
@@ -110,16 +141,6 @@ export function ForceGraph(
         .call(drag(simulation))
         .on("click", click)
         .on("dblclick", dblclick);
-
-    var link_label = svg.selectAll(".link_label")
-        .data(links)
-        .enter()
-        .append("text")
-        .attr("font-size", 32)
-        .text(function (d, i) {
-            return links[i].value;
-        })
-        //.append("cirlce").attr("r", 10).attr("fill", "black")
 
     if (W) link.attr("stroke-width", ({ index: i }) => W[i]);
     if (L) link.attr("stroke", ({ index: i }) => L[i]);
@@ -142,14 +163,10 @@ export function ForceGraph(
 
         node.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
 
-        link_label.attr("x", function (d, i) {
+        link_annotations.attr("transform", function (d, i) {
             var line_node = d3.select("#link_" + i)
-            return (parseInt(line_node.attr("x1")) + parseInt(line_node.attr("x2"))) / 2;
+            return "translate(" + (parseInt(line_node.attr("x1")) + parseInt(line_node.attr("x2"))) / 2 + "," + (parseInt(line_node.attr("y1")) + parseInt(line_node.attr("y2"))) / 2 + ")"
         })
-            .attr("y", function (d, i) {
-                var line_node = d3.select("#link_" + i)
-                return (parseInt(line_node.attr("y1")) + parseInt(line_node.attr("y2"))) / 2;
-            })
     }
 
     function dragBackground(simulation) {
@@ -262,7 +279,32 @@ export function ForceGraph(
                         opacity = 0.5
                     }
                     return opace(saturate(L[i], saturation), opacity)
-                });
+                })
+            link_circles.attr("opacity",
+                ({ index: i }) => {
+                    let saturation = 1
+                    let opacity = 1
+                    if (clickedNode != -1 &&
+                        G[nodes.indexOf(links[i].source)] != G[clickedNode] &&
+                        G[nodes.indexOf(links[i].target)] != G[clickedNode]) {
+                        saturation = 0.32
+                        opacity = 0.25
+                    }
+                    return opacity
+                })
+            link_label.attr("opacity",
+                ({ index: i }) => {
+                    let saturation = 1
+                    let opacity = 1
+                    if (clickedNode != -1 &&
+                        G[nodes.indexOf(links[i].source)] != G[clickedNode] &&
+                        G[nodes.indexOf(links[i].target)] != G[clickedNode]) {
+                        saturation = 0.32
+                        opacity = 0.25
+                    }
+                    return opacity
+                })
+            //link_annotations.sort((a, b) => )
         }
     }
 

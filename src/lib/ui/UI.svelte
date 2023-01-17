@@ -8,11 +8,10 @@
     import Menu from '$lib/ui/menu/Menu.svelte'
     import Notifications from '$lib/ui/Notifications.svelte'
     import {achieveAchievement} from '$lib/utils'
-    import {score} from '$lib/store'
+    import {score, loadedGraph} from '$lib/store'
 
     export let foundFeatures
     export let originalToFind
-    export let questionFeature
     export let streak
     export let restart
     export let showMenu = false
@@ -23,8 +22,6 @@
     export let arrowRotation
     export let arrowTimeout
     export let graph
-
-    $: showTop = Boolean(questionFeature)
 
     function toggleFullScreen() {
         const html = document.querySelector('#svelte')
@@ -48,11 +45,11 @@
 </script>
 
 <div class="container relative">
-    {#if showTop}
+    {#if $loadedGraph}
         <div transition:fly={{y: -100, duration: 500}} class="container absolute z-30 flex flex-col items-center justify-center mt-4 pointer-events-none">
             <div class="flex">
                 <div class="flex py-2 rounded-md shadow-md pointer-events-auto bg-foreground-light text-gray">
-                    <span class="mx-5 whitespace-nowrap">{$score}</span>
+                    <span class="mx-5 whitespace-nowrap font-medium">{$score}</span>
                     <!--
                     <span class="flex items-center justify-center mx-2">
                         <IconCheckmark />

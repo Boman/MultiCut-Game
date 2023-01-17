@@ -46,7 +46,6 @@
                 nodeId: d => d.id,
                 nodeTitle: d => `${d.id}\n${d.group}`,
                 linkStrokeWidth: l => 3 * Math.sqrt(Math.abs(l.value)),
-                linkStroke: l => (l.value > 0 ? 'green' : 'red'),
                 width: $clientX,
                 height: $clientY,
                 svg: d3.select(content),
