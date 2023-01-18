@@ -147,7 +147,11 @@ export function ForceGraph(
     if (G) node.attr("fill", ({ index: i }) => color(G[i]));
     if (T) node.append("title").text(({ index: i }) => T[i]);
 
-    calcScore();
+
+    let clickedNode: number = -1
+
+    calcScore()
+    highlightNode()
 
     function intern(value) {
         return value !== null && typeof value === "object"
@@ -238,6 +242,7 @@ export function ForceGraph(
                     event.subject.x = event.subject.beforeDragX;
                     event.subject.y = event.subject.beforeDragY;
                 }
+                highlightNode()
                 calcScore()
             }
         }
@@ -249,12 +254,10 @@ export function ForceGraph(
             .on("end", dragended);
     }
 
-    let clickedNode: number = -1
-
     function click(event, d) {
-        let i: number = nodes.indexOf(d);
-        clickedNode = i;
-        highlightNode();
+        let i: number = nodes.indexOf(d)
+        clickedNode = i
+        highlightNode()
     }
 
     function highlightNode() {
@@ -270,15 +273,19 @@ export function ForceGraph(
         if (L) {
             link.attr("stroke",
                 ({ index: i }) => {
+                    let stroke_color = d3.color("grey")
                     let saturation = 1
                     let opacity = 1
+                    if (G[nodes.indexOf(links[i].source)] == G[nodes.indexOf(links[i].target)]) {
+                        stroke_color = color(G[nodes.indexOf(links[i].source)])
+                    }
                     if (clickedNode != -1 &&
                         G[nodes.indexOf(links[i].source)] != G[clickedNode] &&
                         G[nodes.indexOf(links[i].target)] != G[clickedNode]) {
                         saturation = 0.32
                         opacity = 0.5
                     }
-                    return opace(saturate(L[i], saturation), opacity)
+                    return opace(saturate(stroke_color, saturation), opacity)
                 })
             link_circles.attr("opacity",
                 ({ index: i }) => {

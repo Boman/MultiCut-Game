@@ -28,6 +28,7 @@
 {/if}
 
 <div class="flex flex-col">
+    <!--
     <button
         on:click={() => {
             setActiveMenu(CampaignMenu)
@@ -36,6 +37,7 @@
     >
         Campaign
     </button>
+-->
     <button
         on:click={() => {
             setActiveMenu(NewRandomMenu)
