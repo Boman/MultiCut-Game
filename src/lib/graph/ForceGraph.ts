@@ -51,8 +51,8 @@ export function ForceGraph(
     const color = d3.scaleOrdinal(G, colors);
 
     // Construct the forces.
-    const forceNode = d3.forceManyBody().strength(-1000);
-    const forceLink = d3.forceLink(links).id(({ index: i }) => N[i]).strength(0.15);
+    const forceNode = d3.forceManyBody().strength(-500);
+    const forceLink = d3.forceLink(links).id(({ index: i }) => N[i]).distance(nodeRadius * 5).strength(0.15);
 
     const alphaTarget = 0.01
 
@@ -64,7 +64,7 @@ export function ForceGraph(
         //.force("x", d3.forceX(width / 2).strength(0.01))
         //.force("y", d3.forceY(height / 2).strength(0.01))
         //.force("cluster", forceCluster(0.02))
-        .force("collide", d3.forceCollide(nodeRadius * 2.5).strength(0.3))
+        .force("collide", d3.forceCollide(nodeRadius * 2.5).strength(0.5))
         .on("tick", ticked)
         .alphaTarget(alphaTarget)
         .alphaDecay(0.01);
