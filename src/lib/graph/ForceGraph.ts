@@ -52,7 +52,7 @@ export function ForceGraph(
 
     // Construct the forces.
     const forceNode = d3.forceManyBody().strength(-500);
-    const forceLink = d3.forceLink(links).id(({ index: i }) => N[i]).distance(nodeRadius * 5).strength(0.15);
+    const forceLink = d3.forceLink(links).id(({ index: i }) => N[i]).strength(0.15);
 
     const alphaTarget = 0.01
 
@@ -75,7 +75,7 @@ export function ForceGraph(
         .attr("width", width)
         .attr("height", height)
         .attr("style", "fill: black; fill-opacity: 0.0")
-        .call(dragBackground(simulation))
+        //.call(dragBackground(simulation))
         .on("click", function (d) { click(d, null); })
 
     function linkStroke(l) {
@@ -221,6 +221,20 @@ export function ForceGraph(
         function dragged(event) {
             event.subject.fx = event.x;
             event.subject.fy = event.y;
+
+            if (clickedNode != -1) {
+                // filter nodes which are in the radius of the drag position
+                let filteredNodes = nodes.filter(n => n != event.subject && Math.sqrt(Math.pow(n.x - event.x, 2) + Math.pow(n.y - event.y, 2)) < nodeRadius);
+                if (G && filteredNodes.length == 1) {
+                    G[nodes.indexOf(filteredNodes[0])] = G[nodes.indexOf(event.subject)]
+                    if (event.subject.beforeDragX) {
+                        event.subject.x = event.subject.beforeDragX;
+                        event.subject.y = event.subject.beforeDragY;
+                    }
+                    highlightNode()
+                    calcScore()
+                }
+            }
         }
 
         function dragended(event) {
@@ -232,19 +246,6 @@ export function ForceGraph(
                 n.fx = null;
                 n.fy = null;
             });
-
-            // filter nodes which are in the radius of the drag end position
-            let filteredNodes = nodes.filter(n => n != event.subject && Math.sqrt(Math.pow(n.x - event.x, 2) + Math.pow(n.y - event.y, 2)) < nodeRadius);
-            if (G && filteredNodes.length == 1) {
-                G[nodes.indexOf(event.subject)] = G[nodes.indexOf(filteredNodes[0])]
-                node.attr("fill", ({ index: i }) => color(G[i]));
-                if (event.subject.beforeDragX) {
-                    event.subject.x = event.subject.beforeDragX;
-                    event.subject.y = event.subject.beforeDragY;
-                }
-                highlightNode()
-                calcScore()
-            }
         }
 
         return d3
@@ -328,6 +329,7 @@ export function ForceGraph(
                 calcScore()
             }
         }
+        event.stopImmediatePropagation()
     }
 
     function calcScore() {

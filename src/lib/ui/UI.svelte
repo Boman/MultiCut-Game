@@ -63,14 +63,12 @@
         </div>
     {/if}
     <div class="container absolute z-40 items-start justify-between hidden mt-4 pointer-events-none md:flex">
-        <!--
         <div class="flex flex-col font-black rounded-md shadow-md pointer-events-auto text-md text-background bg-foreground mx-4">
             <button on:click={() => graph.zoomIn()} class="flex items-center justify-center w-10 h-10 transition-all duration-75 rounded-md hover:text-xl hover:bg-foreground-light"
                 >+</button>
             <button on:click={() => graph.zoomOut()} class="flex items-center justify-center w-10 h-10 transition-all duration-75 rounded-md hover:text-xl hover:bg-foreground-light"
                 >-</button>
         </div>
-        -->
         <div class="flex">
             <button on:click={toggleMenu} class="flex p-2 transition rounded-md shadow-md pointer-events-auto text-background bg-foreground hover:bg-foreground-light">
                 <IconMenu /><span class="ml-2">Menu</span>
@@ -84,12 +82,10 @@
     </div>
 </div>
 
-<!--
 <div class="absolute bottom-0 left-0 flex flex-col m-6 font-black rounded-md shadow-md pointer-events-auto md:hidden text-md text-background bg-foreground">
     <button on:click={() => graph.zoomIn()} class="flex items-center justify-center w-10 h-10 transition-all duration-75 rounded-md hover:text-xl hover:bg-foreground-light">+</button>
     <button on:click={() => graph.zoomOut()} class="flex items-center justify-center w-10 h-10 transition-all duration-75 rounded-md hover:text-xl hover:bg-foreground-light">-</button>
 </div>
--->
 <div class="absolute bottom-0 right-0 m-6 md:hidden">
     <button class="z-40 flex p-4 transition rounded-full shadow-md pointer-events-auto text-background bg-foreground hover:bg-foreground-light" on:click={toggleMenu}>
         <IconMenu />

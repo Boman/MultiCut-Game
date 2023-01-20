@@ -16,13 +16,13 @@
 
     function zoomed(e) {
         const t = e.transform
-        t.x = Math.min($clientX / 2, Math.max(t.x, $clientX / 2 - $clientX * t.k))
-        t.y = Math.min($clientY / 2, Math.max(t.y, $clientY / 2 - $clientY * t.k))
+        t.x = Math.min(($clientX * t.k) / 2, Math.max(t.x, (-$clientX * t.k) / 2))
+        t.y = Math.min(($clientY * t.k) / 2, Math.max(t.y, (-$clientY * t.k) / 2))
         transform = t
         if (e.sourceEvent) $mousePos = {x: e.sourceEvent.clientX, y: e.sourceEvent.clientY}
     }
 
-    let zoom = d3.zoom().scaleExtent([1, 50]).on('zoom', zoomed).clickDistance(10)
+    let zoom = d3.zoom().scaleExtent([0.5, 4]).on('zoom', zoomed).clickDistance(10)
 
     export function zoomIn() {
         zoom.scaleBy(d3Svg.transition().duration(200), 1.8)
@@ -58,5 +58,5 @@
 <svelte:window />
 
 <svg bind:this={svg} transition:fly={{y: 20, duration: 1500}} width={$clientX} height={$clientY} viewBox="{-$clientX / 2} {-$clientY / 2} {$clientX} {$clientY}">
-    <g bind:this={content} shape-rendering="auto" />
+    <g bind:this={content} shape-rendering="auto" {transform} />
 </svg>
