@@ -70,7 +70,7 @@
                 >-</button>
         </div>
         <div class="flex">
-            <button on:click={toggleMenu} class="flex p-2 transition rounded-md shadow-md pointer-events-auto text-background bg-foreground hover:bg-foreground-light">
+            <button on:click={toggleMenu} class="flex p-2 transition rounded-md shadow-md pointer-events-auto text-background bg-foreground hover:bg-foreground-light mx-4">
                 <IconMenu /><span class="ml-2">Menu</span>
             </button>
             <!--

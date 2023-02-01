@@ -18,12 +18,16 @@ def solve_multicut(graph: nx.Graph, costs: dict, log: bool = True):
     model = gp.Model()
     model.setParam('OutputFlag', 1 if log else 0)
     # add the variables to the model
-    variables = model.addVars(costs.keys(), obj=costs, vtype=GRB.BINARY, name='e')
+    variables = model.addVars(costs.keys(), obj=costs,
+                              vtype=GRB.BINARY, name='e')
     for i, j in variables.keys():
         variables[j, i] = variables[i, j]
 
+    addConstraints = []
+
     # define the algorithm for separating cycle inequalities
     def separate_cycle_inequalities(_, where):
+        global addConstraints
         # if the solver did not find a new integral solution, do nothing
         if where != GRB.Callback.MIPSOL:
             return
@@ -46,11 +50,19 @@ def solve_multicut(graph: nx.Graph, costs: dict, log: bool = True):
             # search for the shortest such violated path and add the corresponding inequality to the model
             path = nx.shortest_paths.shortest_path(g_copy, u, v)
             model.cbLazy(variables[u, v]
-                         <= gp.quicksum(variables[path[i], path[i+1]] for i in range(len(path) - 1)))
+                         <= gp.quicksum(variables[current, next] for current, next in zip(path, path[1:])))
+            print("Add cycle constraint: "+" ".join(str(path)))
+            addConstraints += [lambda model:
+                               model.addConstr(variables[u, v]
+                                               <= gp.quicksum(variables[current, next] for current, next in zip(path, path[1:])))]
 
     # optimize the model
     model.Params.LazyConstraints = 1
     model.optimize(separate_cycle_inequalities)
+
+    for c in addConstraints:
+        c(model)
+    model.write("out.lp")
 
     # return the 0-1 edge labeling by rounding the solution
     solution = model.getAttr("X", variables)
@@ -60,7 +72,7 @@ def solve_multicut(graph: nx.Graph, costs: dict, log: bool = True):
 
 def main():
     # create graph with random edge costs
-    graph = nx.grid_graph((10, 10))
+    graph = nx.grid_graph((4, 3))
     np.random.seed(2)
     bias = 0.3
     costs = {}
@@ -86,12 +98,13 @@ def main():
 
     # plot the results
     nx.draw(graph,
-            edge_color=["green" if costs[e] > 0 else "red" for e in graph.edges],
+            edge_color=["green" if costs[e] >
+                        0 else "red" for e in graph.edges],
             width=[1 + np.abs(costs[e]) for e in graph.edges],
             pos={n: n for n in graph.nodes},
             style=[":" if multicut[e] == 1 else "-" for e in graph.edges],
             node_color=[node_labeling[n] for n in graph.nodes], cmap=plt.get_cmap("tab20"))
-    plt.show()
+    #plt.show()
 
 
 if __name__ == "__main__":

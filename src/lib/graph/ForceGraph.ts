@@ -113,6 +113,7 @@ export function ForceGraph(
         .attr("cx", 0)
         .attr("cy", 0)
         .attr("fill", "white")
+        .attr("opacity", 0)
 
     var link_circles = link_annotations
         .append("circle")
@@ -145,7 +146,7 @@ export function ForceGraph(
     if (W) link.attr("stroke-width", ({ index: i }) => W[i]);
     if (L) link.attr("stroke", ({ index: i }) => L[i]);
     if (G) node.attr("fill", ({ index: i }) => color(G[i]));
-    if (T) node.append("title").text(({ index: i }) => T[i]);
+    //if (T) node.append("title").text(({ index: i }) => T[i]);
 
 
     let clickedNode: number = -1
@@ -274,7 +275,7 @@ export function ForceGraph(
         if (L) {
             link.attr("stroke",
                 ({ index: i }) => {
-                    let stroke_color = d3.color("grey")
+                    let stroke_color = linkStroke(links[i])//d3.color("grey")
                     let saturation = 1
                     let opacity = 1
                     if (G[nodes.indexOf(links[i].source)] == G[nodes.indexOf(links[i].target)]) {
@@ -291,24 +292,24 @@ export function ForceGraph(
             link_circles.attr("opacity",
                 ({ index: i }) => {
                     let saturation = 1
-                    let opacity = 1
+                    let opacity = clickedNode != -1 ? 1 : 0
                     if (clickedNode != -1 &&
                         G[nodes.indexOf(links[i].source)] != G[clickedNode] &&
                         G[nodes.indexOf(links[i].target)] != G[clickedNode]) {
                         saturation = 0.32
-                        opacity = 0.25
+                        opacity = 0.00
                     }
                     return opacity
                 })
             link_label.attr("opacity",
                 ({ index: i }) => {
                     let saturation = 1
-                    let opacity = 1
+                    let opacity = clickedNode != -1 ? 1 : 0
                     if (clickedNode != -1 &&
                         G[nodes.indexOf(links[i].source)] != G[clickedNode] &&
                         G[nodes.indexOf(links[i].target)] != G[clickedNode]) {
                         saturation = 0.32
-                        opacity = 0.25
+                        opacity = 0.0
                     }
                     return opacity
                 })
