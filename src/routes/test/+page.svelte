@@ -20,13 +20,6 @@
 </style>
 
 <script lang="ts">
-    import {onMount} from 'svelte'
-
-    import {solve} from '$lib/graph/solve.ts'
-
-    console.log('abdon')
-    solve()
-
     const width: number = 5
     const height: number = 5
 

@@ -9,4 +9,6 @@
     console.log('sdgbf2')
 </script>
 
-<pre>{content}</pre>
+<div>
+    <pre>{content}</pre>
+</div>

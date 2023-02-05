@@ -1,19 +1,48 @@
 //import { Module } from '$lib/graph/clp-wasm.js'
 
 export function solveGraph(graph) {
+    let obj = ""
+    let variables = []
+    for (let i = 0; i < graph.links.length; i++) {
+        let variable = 'x' + i
+        let value = graph.links[i].value
+        variables.push(variable)
+        obj += (value > 0 ? " +" : " ") + value + ' ' + variable
+    }
+
     let problem = `Maximize
-        obj: + 0.6 x1 + 0.5 x2
-        Subject To
-        cons1: + x1 + 2 x2 <= 1
-        cons2: + 3 x1 + x2 <= 2
-        End`
+    obj: `+ obj + `
+    Subject To
+    Binaries
+    `+ variables.join(' ') + `
+    End`
     let solutionElement = ''
     const solution = Module.solve(problem, 9)
     const solObj = JSON.parse(solution)
-    for (let i in solObj)
-        if (typeof solObj[i] == 'string' && solObj[i].length > 25) {
-            solObj[i] = Module.bnRound(solObj[i])
+    solutionElement = solObj['solution'].map((x) => parseInt(x))
+
+    let nodeLabeling = Array(graph.nodes.length).fill(-1)
+    let label = 0
+    while (nodeLabeling.includes(-1)) {
+        let visitNodes = [nodeLabeling.findIndex((x) => x == -1)]
+        while (visitNodes.length > 0) {
+            let nodeIndex = visitNodes.pop()
+            if (nodeLabeling[nodeIndex] != label) {
+                nodeLabeling[nodeIndex] = label
+                for (let i = 0; i < graph.links.length; ++i) {
+                    if (solutionElement[i] == 0) {
+                        if (graph.links[i].source == graph.nodes[nodeIndex].id) {
+                            visitNodes.push(graph.nodes.findIndex((n) => n.id == graph.links[i].target))
+                        }
+                        if (graph.links[i].target == graph.nodes[nodeIndex].id) {
+                            visitNodes.push(graph.nodes.findIndex((n) => n.id == graph.links[i].source))
+                        }
+                    }
+                }
+            }
         }
-    solutionElement = JSON.stringify(solObj, null, 4)
-    return solutionElement
+        label += 1
+    }
+
+    return problem + "\n" + solutionElement + "\n" + nodeLabeling
 }
