@@ -22,8 +22,7 @@ def solve_multicut(graph: nx.Graph, costs: dict, log: bool = True):
                               vtype=GRB.BINARY, name='e')
     for i, j in variables.keys():
         variables[j, i] = variables[i, j]
-
-    addConstraints = []
+        print(f"{i}, {j} - {variables[j, i]} = {variables[i, j]}")
 
     # define the algorithm for separating cycle inequalities
     def separate_cycle_inequalities(_, where):
@@ -52,16 +51,11 @@ def solve_multicut(graph: nx.Graph, costs: dict, log: bool = True):
             model.cbLazy(variables[u, v]
                          <= gp.quicksum(variables[current, next] for current, next in zip(path, path[1:])))
             print("Add cycle constraint: "+" ".join(str(path)))
-            addConstraints += [lambda model:
-                               model.addConstr(variables[u, v]
-                                               <= gp.quicksum(variables[current, next] for current, next in zip(path, path[1:])))]
 
     # optimize the model
     model.Params.LazyConstraints = 1
     model.optimize(separate_cycle_inequalities)
 
-    for c in addConstraints:
-        c(model)
     model.write("out.lp")
 
     # return the 0-1 edge labeling by rounding the solution
