@@ -39,6 +39,7 @@
     },
     "dependencies": {
         "clp-wasm": "^0.0.20",
+        "glpk.js": "^4.0.1",
         "lodash": "^4.17.21"
     }
 }

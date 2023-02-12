@@ -32,6 +32,7 @@ def solve_multicut(graph: nx.Graph, costs: dict, log: bool = True):
             return
         # extract the values of the current solution
         vals = model.cbGetSolution(variables)
+        print("vals: " + vals)
         # compute the connected components with respect to the current solution
         g_copy = graph.copy()
         g_copy.remove_edges_from([e for e in g_copy.edges if vals[e] > 0.5])
@@ -98,7 +99,7 @@ def main():
             pos={n: n for n in graph.nodes},
             style=[":" if multicut[e] == 1 else "-" for e in graph.edges],
             node_color=[node_labeling[n] for n in graph.nodes], cmap=plt.get_cmap("tab20"))
-    #plt.show()
+    # plt.show()
 
 
 if __name__ == "__main__":
