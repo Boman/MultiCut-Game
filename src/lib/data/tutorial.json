@@ -1,6 +1,7 @@
 {
     "forceNode": 0.05,
     "forceLink": -1000,
+    "forceCollide": 0.5,
     "forcePosition": 0.1,
     "nodes": [
         {

@@ -1,4 +1,5 @@
 //import { Module } from '$lib/graph/clp-wasm.js'
+import { solve } from '$lib/graph/glpk-utils.ts'
 
 export function solveGraph(graph) {
     let constraints = ""
@@ -72,7 +73,7 @@ function solveLP(graph, constraints) {
 
     console.log("problem: " + problem)
 
-    const solution = Module.solve(problem, 9)
+    const solution = "{'solution':''}"//solve(problem, 9)
 
     return { multicut: JSON.parse(solution)['solution'].map((x) => parseInt(x)), variables: variables }
 }
