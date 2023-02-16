@@ -2,8 +2,8 @@
     import _ from 'lodash'
     import {onMount} from 'svelte'
 
-    import graphData from '$lib/data/l5.json'
-    //import graphData from '$lib/data/tutorial.json'
+    //import graphData from '$lib/data/l5.json'
+    import graphData from '$lib/data/tutorial.json'
     import Graph from '$lib/graph/Graph.svelte'
     import {clientX, clientY, day, loadedGraph, mousePos, save, showDebug} from '$lib/store'
     import LoadingScreen from '$lib/ui/LoadingScreen.svelte'

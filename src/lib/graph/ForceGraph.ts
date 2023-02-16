@@ -44,30 +44,82 @@ export function ForceGraph(
         typeof linkStroke !== "function" ? null : d3.map(d3.map(links, linkStroke), d3.color);
 
     // Replace the input nodes and links with mutable objects for the simulation.
-    nodes = d3.map(nodes, (_, i) => ({ id: N[i] }));
+    //nodes = JSON.parse(JSON.stringify(nodes))
+    nodes = d3.map(nodes, (n, i) => ({ id: n.id, positionX: n.x, positionY: n.y }));
     links = d3.map(links, (_, i) => ({ source: LS[i], target: LT[i], value: LV[i] }));
+
+
+    {
+        let minX = nodes[0].positionX
+        let minY = nodes[0].positionY
+        let maxX = nodes[0].positionX
+        let maxY = nodes[0].positionY
+        for (const d of nodes) {
+            minX = Math.min(minX, d.positionX)
+            minY = Math.min(minY, d.positionY)
+            maxX = Math.max(maxX, d.positionX)
+            maxY = Math.max(maxY, d.positionY)
+        }
+        for (const d of nodes) {
+            d.positionX = (d.positionX - minX) / (maxX - minX)
+            d.positionY = (d.positionY - minY) / (maxY - minY)
+        }
+    }
+
 
     // Construct the scales.
     const color = d3.scaleOrdinal(G, colors);
 
     // Construct the forces.
-    const forceNode = d3.forceManyBody().strength(-500);
-    const forceLink = d3.forceLink(links).id(({ index: i }) => N[i]).strength(0.15);
+    const forceNode = d3.forceManyBody().strength(-1000);
+    const forceLink = d3.forceLink(links).id(({ index: i }) => N[i]).strength(0.05);
 
     const alphaTarget = 0.01
 
+
     const simulation = d3
         .forceSimulation(nodes)
+        .force("charge", forceNode)
         .force("link", forceLink)
-        //.force("charge", forceNode)
         .force("center", d3.forceCenter())
-        //.force("x", d3.forceX(width / 2).strength(0.01))
-        //.force("y", d3.forceY(height / 2).strength(0.01))
         //.force("cluster", forceCluster(0.02))
-        .force("collide", d3.forceCollide(nodeRadius * 2.5).strength(0.5))
+        //.force("collide", d3.forceCollide(nodeRadius * 2).strength(0.5))
+        .force("position", forcePosition(0.1))
         .on("tick", ticked)
         .alphaTarget(alphaTarget)
-        .alphaDecay(0.01);
+        .alphaDecay(0.01)
+
+    function forcePosition(strength = 0.1) {
+        let nodes;
+        function force(alpha) {
+            let nodeBounds = bounds(nodes)
+            const l = alpha * strength;
+            for (const d of nodes) {
+                const cx = d.positionX * (nodeBounds.maxX - nodeBounds.minX) + nodeBounds.minX - d.x
+                const cy = -d.positionY * (nodeBounds.maxY - nodeBounds.minY) + nodeBounds.minY - d.y
+                d.vx -= (d.x - cx) * l
+                d.vy -= (d.y - cy) * l
+            }
+        }
+
+        force.initialize = _ => nodes = _
+
+        return force
+    }
+
+    function bounds(nodes) {
+        let minX = nodes[0].x
+        let minY = nodes[0].y
+        let maxX = nodes[0].x
+        let maxY = nodes[0].y
+        for (const d of nodes) {
+            minX = Math.min(minX, d.x)
+            minY = Math.min(minY, d.y)
+            maxX = Math.max(maxX, d.x)
+            maxY = Math.max(maxY, d.y)
+        }
+        return { minX: minX, minY: minY, maxX: maxX, maxY: maxY };
+    }
 
     var background = svg.append("rect")
         .attr("x", -width / 2)

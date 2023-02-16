@@ -1,4 +1,7 @@
 {
+    "forceNode": 0.05,
+    "forceLink": -1000,
+    "forcePosition": 0.1,
     "nodes": [
         {
             "id": "x0,y0",
@@ -12,7 +15,7 @@
         },
         {
             "id": "x0,y2",
-            "x": 0,
+            "x": 0.5,
             "y": 2
         },
         {
