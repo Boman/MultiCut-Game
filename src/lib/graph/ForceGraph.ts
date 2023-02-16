@@ -331,7 +331,7 @@ export function ForceGraph(
                     let saturation = 1
                     let opacity = 1
                     if (G[nodes.indexOf(links[i].source)] == G[nodes.indexOf(links[i].target)]) {
-                        stroke_color = color(G[nodes.indexOf(links[i].source)])
+                        //stroke_color = color(G[nodes.indexOf(links[i].source)])
                     }
                     if (clickedNode != -1 &&
                         G[nodes.indexOf(links[i].source)] != G[clickedNode] &&
