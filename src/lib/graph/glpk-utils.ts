@@ -37,3 +37,8 @@ export const solve = async (lp, msgLevel) => {
     const solve = (await (glpk as any)()).solve
     return solve(lp, msgLevel)
 }
+
+export const write = async (lp) => {
+    const write = (await (glpk as any)()).write
+    return write(lp)
+}
