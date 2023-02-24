@@ -38,7 +38,7 @@
         "vite": "^4.0.0"
     },
     "dependencies": {
-        "glpk.js": "^4.0.1",
+        "highs": "^0.7.3",
         "lodash": "^4.17.21"
     }
 }

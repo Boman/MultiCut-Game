@@ -1,14 +1,19 @@
-//import { Module } from '$lib/graph/clp-wasm.js'
+import { Module } from '$lib/graph/highs.js'
 
-export function solveGraph(graph) {
+let highs_solve = async function (problem) {
+    const highs = await Module();
+    let s = highs.solve(problem)
+    return s
+}
+
+export async function solveGraph(graph) {
     let constraints = ""
     let solution
     let multicutIsSolution
     let constraintsList: string[] = []
     let n = 0
     do {
-        const { multicut, variables } = solveLP(graph, constraints)
-        console.log("multicut: " + multicut)
+        const { multicut, variables } = await solveLP(graph, constraints)
 
         let nodeLabeling = Array(graph.nodes.length).fill(-1)
         let label = 0
@@ -47,12 +52,16 @@ export function solveGraph(graph) {
         constraints = constraintsList.join("\n")
         solution = multicut
         n += 1
-    } while (n < 5 && !multicutIsSolution)
+        if (n % 5 == 0) {
+            console.log("solving step: " + n)
+        }
+    } while (!multicutIsSolution)
+    console.log("complete solving steps: " + n)
 
-    return solution + "\n" + constraints
+    return solution
 }
 
-function solveLP(graph, constraints) {
+async function solveLP(graph, constraints) {
     let obj = ""
     let variables = []
     for (let i = 0; i < graph.links.length; i++) {
@@ -70,11 +79,15 @@ function solveLP(graph, constraints) {
     `+ variables.join(' ') + `
     End`
 
-    console.log("problem: " + problem)
+    const solution = await highs_solve(problem)
 
-    const solution = Module.solve(problem, 9)
+    let multicut = []
 
-    return { multicut: JSON.parse(solution)['solution'].map((x) => parseInt(x)), variables: variables }
+    for (let i = 0; i < variables.length; i++) {
+        multicut.push(solution['Columns'][variables[i]]['Primal'])
+    }
+
+    return { multicut: multicut, variables: variables }
 }
 
 function bfs(graph, multicut, index) {

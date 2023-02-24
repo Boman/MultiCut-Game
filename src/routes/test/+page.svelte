@@ -20,8 +20,8 @@
 </style>
 
 <script lang="ts">
-    const width: number = 5
-    const height: number = 5
+    const width: number = 15
+    const height: number = 15
 
     let content: string = ''
     let nodes: string[] = []

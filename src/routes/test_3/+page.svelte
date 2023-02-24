@@ -1,12 +1,13 @@
 <script lang="ts">
     import {solveGraph} from '$lib/graph/solve.ts'
 
-    import graphData from '$lib/data/l5.json'
+    import graphData from '$lib/data/l15.json'
     //import graphData from '$lib/data/tutorial.json'
 
-    let content = solveGraph(graphData)
+    let content = 'solving ...'
+    solveGraph(graphData).then(r => (content = JSON.stringify(r)))
 </script>
 
 <div>
-    <pre>{content}</pre>
+    {content}
 </div>
