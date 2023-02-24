@@ -1,13 +1,4 @@
-import { glpkConstants, solve } from '$lib/graph/glpk-utils.ts'
-
-const options = {
-    msglev: glpkConstants.GLP_MSG_ALL,
-    presol: true,
-    cb: {
-        call: progress => console.log(progress),
-        each: 1
-    }
-}
+//import { Module } from '$lib/graph/clp-wasm.js'
 
 export function solveGraph(graph) {
     let constraints = ""
@@ -62,11 +53,13 @@ export function solveGraph(graph) {
 }
 
 function solveLP(graph, constraints) {
+    let obj = ""
     let variables = []
     for (let i = 0; i < graph.links.length; i++) {
         let variable = 'x' + i
         let value = graph.links[i].value
-        variables.push({'name':variable, 'coef':value})
+        variables.push(variable)
+        obj += (value > 0 ? " +" : " ") + value + ' ' + variable
     }
 
     let problem = `Minimize
@@ -79,29 +72,7 @@ function solveLP(graph, constraints) {
 
     console.log("problem: " + problem)
 
-    const result = solve(
-        {
-            name: 'LP',
-            objective: {
-                direction: glpkConstants.GLP_MIN,
-                name: 'obj',
-                vars: variables
-            },
-            subjectTo: [
-                {
-                    name: 'cons1',
-                    vars: [
-                        { name: 'x1', coef: 1.0 },
-                        { name: 'x2', coef: 2.0 }
-                    ],
-                    bnds: { type: glpkConstants.GLP_UP, ub: 1.0, lb: 0.0 }
-                }
-            ]
-        },
-        options
-    )
-
-    const solution = "{'solution':''}"//solve(problem, 9)
+    const solution = Module.solve(problem, 9)
 
     return { multicut: JSON.parse(solution)['solution'].map((x) => parseInt(x)), variables: variables }
 }
