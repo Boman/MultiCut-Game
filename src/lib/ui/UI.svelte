@@ -1,26 +1,18 @@
 <script lang="ts">
     import {onMount} from 'svelte'
-    import {fly, scale} from 'svelte/transition'
+    import {fly} from 'svelte/transition'
 
     import IconCheckmark from '$lib/icons/IconCheckmark.svelte'
     import IconFullScreen from '$lib/icons/IconFullScreen.svelte'
     import IconMenu from '$lib/icons/IconMenu.svelte'
     import Menu from '$lib/ui/menu/Menu.svelte'
     import Notifications from '$lib/ui/Notifications.svelte'
-    import {achieveAchievement} from '$lib/utils'
-    import {score, loadedGraph} from '$lib/store'
+    import {score, optimalScore, loadedGraph} from '$lib/store'
 
-    export let foundFeatures
-    export let originalToFind
-    export let streak
     export let restart
     export let showMenu = false
-    export let mistakes
-    export let correct
     export let interfaceLoaded = false
     export let showWinScreen
-    export let arrowRotation
-    export let arrowTimeout
     export let graph
 
     function toggleFullScreen() {
@@ -31,12 +23,6 @@
 
     function toggleMenu() {
         showMenu = !showMenu
-    }
-
-    export function triggerArrow(bearing) {
-        clearTimeout(arrowTimeout)
-        arrowRotation = bearing ? [360, 45, 90, 135, 180, 225, 270, 315][Math.round(bearing / 45) % 8] : undefined
-        arrowTimeout = window.setTimeout(() => (arrowRotation = undefined), 4000)
     }
 
     onMount(async () => {
@@ -50,24 +36,24 @@
             <div class="flex">
                 <div class="flex py-2 rounded-md shadow-md pointer-events-auto bg-foreground-light text-gray">
                     <span class="mx-5 whitespace-nowrap font-medium">{$score}</span>
-                    <!--
                     <span class="flex items-center justify-center mx-2">
                         <IconCheckmark />
-                        {#key correct}
-                            <span in:scale={{start: 1.5}} class="ml-1">{correct} %</span>
-                        {/key}
+                        <span class="ml-1">
+                            {#if $optimalScore > -1}
+                                {Math.floor(($score * 100) / $optimalScore)} %
+                            {:else}
+                                computing solution...
+                            {/if}
+                        </span>
                     </span>
-                    -->
                 </div>
             </div>
         </div>
     {/if}
     <div class="container absolute z-40 items-start justify-between hidden mt-4 pointer-events-none md:flex">
         <div class="flex flex-col font-black rounded-md shadow-md pointer-events-auto text-md text-background bg-foreground mx-4">
-            <button on:click={() => graph.zoomIn()} class="flex items-center justify-center w-10 h-10 transition-all duration-75 rounded-md hover:text-xl hover:bg-foreground-light"
-                >+</button>
-            <button on:click={() => graph.zoomOut()} class="flex items-center justify-center w-10 h-10 transition-all duration-75 rounded-md hover:text-xl hover:bg-foreground-light"
-                >-</button>
+            <button on:click={() => graph.zoomIn()} class="flex items-center justify-center w-10 h-10 transition-all duration-75 rounded-md hover:text-xl hover:bg-foreground-light">+</button>
+            <button on:click={() => graph.zoomOut()} class="flex items-center justify-center w-10 h-10 transition-all duration-75 rounded-md hover:text-xl hover:bg-foreground-light">-</button>
         </div>
         <div class="flex">
             <button on:click={toggleMenu} class="flex p-2 transition rounded-md shadow-md pointer-events-auto text-background bg-foreground hover:bg-foreground-light mx-4">
@@ -93,7 +79,7 @@
 </div>
 
 {#if showMenu}
-    <Menu {showWinScreen} {mistakes} {correct} {toggleMenu} {restart} {originalToFind} {...$$props} />
+    <Menu {showWinScreen} {toggleMenu} {restart} {...$$props} />
 {/if}
 
 <Notifications />

@@ -13,7 +13,8 @@ export const loadedGraph = writable()
 export const soundEffects = writable(true)
 
 // Game
-export const score = writable()
+export const score = writable(0)
+export const optimalScore = writable(-1)
 export const mousePos = writable({x: 0, y: 0})
 export const clientX = writable(0)
 export const clientY = writable(0)

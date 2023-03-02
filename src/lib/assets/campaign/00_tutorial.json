@@ -1,0 +1,76 @@
+{
+    "name": "Tutorial",
+    "forceNodeStrength": -1000,
+    "forceLinkStrength": 0.05,
+    "forceCollide": 0.5,
+    "forcePositionStrength": 0.1,
+    "nodes": [
+        {
+            "id": "x0,y0",
+            "x": 0,
+            "y": 0
+        },
+        {
+            "id": "x0,y1",
+            "x": 0,
+            "y": 1
+        },
+        {
+            "id": "x0,y2",
+            "x": 0.5,
+            "y": 2
+        },
+        {
+            "id": "x1,y0",
+            "x": 1,
+            "y": 0
+        },
+        {
+            "id": "x1,y1",
+            "x": 1,
+            "y": 1
+        }
+    ],
+    "links": [
+        {
+            "source": "x0,y0",
+            "target": "x0,y1",
+            "value": 9
+        },
+        {
+            "source": "x0,y0",
+            "target": "x1,y0",
+            "value": 6
+        },
+        {
+            "source": "x0,y0",
+            "target": "x1,y1",
+            "value": -7
+        },
+        {
+            "source": "x0,y1",
+            "target": "x1,y1",
+            "value": -2
+        },
+        {
+            "source": "x0,y1",
+            "target": "x1,y0",
+            "value": -8
+        },
+        {
+            "source": "x1,y0",
+            "target": "x1,y1",
+            "value": -4
+        },
+        {
+            "source": "x0,y1",
+            "target": "x0,y2",
+            "value": -4
+        },
+        {
+            "source": "x1,y1",
+            "target": "x0,y2",
+            "value": 5
+        }
+    ]
+}

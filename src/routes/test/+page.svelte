@@ -48,4 +48,10 @@
 
 <main>
     <pre>{content}</pre>
+
+    <!-- The h-32 is just there to force the child to overflow -->
+    <div class="h-32 scrollbar scrollbar-thumb-blue-700 scrollbar-track-blue-300 overflow-y-scroll hover:scrollbar-thumb-green-700">
+        <!-- This element is just here so that something overflows the parent -->
+        <div class="h-64 bg-gray-400" />
+    </div>
 </main>

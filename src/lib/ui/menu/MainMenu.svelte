@@ -1,26 +1,20 @@
 <script lang="ts">
-    import achievements from '$lib/assets/data/achievements.json'
     import IconInfo from '$lib/icons/IconInfo.svelte'
     import IconLock from '$lib/icons/IconLock.svelte'
     import IconVolumeOff from '$lib/icons/IconVolumeOff.svelte'
     import IconVolumeUp from '$lib/icons/IconVolumeUp.svelte'
     import {day, save, soundEffects, timeLeft, loadedGraph} from '$lib/store'
     import AboutMenu from '$lib/ui/menu/AboutMenu.svelte'
-    import Achievements from '$lib/ui/menu/Achievements.svelte'
+    import CampaignMenu from '$lib/ui/menu/CampaignMenu.svelte'
     import NewRandomMenu from '$lib/ui/menu/NewRandomMenu.svelte'
     import NewLadderMenu from '$lib/ui/menu/NewLadderMenu.svelte'
     import WinScreen from '$lib/ui/menu/WinScreen.svelte'
-    import graphData from '$lib/data/l5.json'
-    import {randomGraph} from '$lib/graph/graph'
 
     export let restart
     export let toggleMenu
     export let showWinScreen
-    export let newDailyQuest
     export let canRestart
     export let setActiveMenu
-
-    $: disabledDailyQuest = $save?.dailyQuestProgress?.day === $day
 </script>
 
 {#if showWinScreen}
@@ -28,7 +22,6 @@
 {/if}
 
 <div class="flex flex-col">
-    <!--
     <button
         on:click={() => {
             setActiveMenu(CampaignMenu)
@@ -37,7 +30,6 @@
     >
         Campaign
     </button>
--->
     <button
         on:click={() => {
             setActiveMenu(NewRandomMenu)
@@ -53,15 +45,6 @@
         class="p-2 mb-2 text-xl text-black transition-colors rounded-md bg-foreground-light hover:bg-background hover:text-foreground"
     >
         Möbius Ladder
-    </button>
-    <!--
-    <button
-        on:click={() => setActiveMenu(Achievements)}
-        class="flex items-center justify-between p-2 mb-2 text-xl text-black transition-colors rounded-md bg-foreground-light hover:bg-background hover:text-foreground"
-    >
-        <span class="w-1/3" />
-        <span class="w-1/3">ACHIEVEMENTS</span>
-        <span class="flex justify-end w-1/3 text-sm">{$save.achievements.length} / {achievements.length}</span>
     </button>
     <button
         on:click={() => {
@@ -84,5 +67,4 @@
             </label>
         </div>
     </div>
--->
 </div>

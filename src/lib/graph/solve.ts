@@ -13,7 +13,7 @@ export async function solveGraph(graph) {
     let constraintsList: string[] = []
     let n = 0
     do {
-        const { multicut, variables } = await solveLP(graph, constraints)
+        const { multicut, objectiveValue, variables, problem } = await solveLP(graph, constraints)
 
         let nodeLabeling = Array(graph.nodes.length).fill(-1)
         let label = 0
@@ -50,13 +50,15 @@ export async function solveGraph(graph) {
             }
         }
         constraints = constraintsList.join("\n")
-        solution = multicut
+        solution = { multicut, objectiveValue, problem }
         n += 1
         if (n % 5 == 0) {
             console.log("solving step: " + n)
         }
     } while (!multicutIsSolution)
     console.log("complete solving steps: " + n)
+    console.log("vars: " + JSON.stringify(graph.links.map(l => l.value)))
+    console.log("problem: " + solution.problem)
 
     return solution
 }
@@ -71,7 +73,7 @@ async function solveLP(graph, constraints) {
         obj += (value > 0 ? " +" : " ") + value + ' ' + variable
     }
 
-    let problem = `Minimize
+    let problem = `Maximize
     obj: `+ obj + `
     Subject To
     `+ constraints + `
@@ -87,7 +89,9 @@ async function solveLP(graph, constraints) {
         multicut.push(solution['Columns'][variables[i]]['Primal'])
     }
 
-    return { multicut: multicut, variables: variables }
+    //console.log(JSON.stringify(solution))
+
+    return { multicut, objectiveValue: solution['ObjectiveValue'], variables, problem }
 }
 
 function bfs(graph, multicut, index) {

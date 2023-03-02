@@ -7,6 +7,10 @@ export function ForceGraph(
     {
         nodes, // an iterable of node objects (typically [{id}, …])
         links, // an iterable of link objects (typically [{source, target}, …])
+        forceNodeStrength = -500,
+        forceLinkStrength = 0.15,
+        forceCollideStrength = 0.5,
+        forcePositionStrength = 0
     },
     {
         nodeId = (d) => d.id, // given d in nodes, returns a unique identifier (string)
@@ -48,7 +52,6 @@ export function ForceGraph(
     nodes = d3.map(nodes, (n, i) => ({ id: n.id, positionX: n.x, positionY: n.y }));
     links = d3.map(links, (_, i) => ({ source: LS[i], target: LT[i], value: LV[i] }));
 
-
     {
         let minX = nodes[0].positionX
         let minY = nodes[0].positionY
@@ -71,11 +74,10 @@ export function ForceGraph(
     const color = d3.scaleOrdinal(G, colors);
 
     // Construct the forces.
-    const forceNode = d3.forceManyBody().strength(-1000).theta(0.5);
-    const forceLink = d3.forceLink(links).id(({ index: i }) => N[i]).strength(0.05);
+    const forceNode = d3.forceManyBody().strength(forceNodeStrength)//.theta(0.5)
+    const forceLink = d3.forceLink(links).id(({ index: i }) => N[i]).strength(forceLinkStrength)
 
     const alphaTarget = 0.01
-
 
     const simulation = d3
         .forceSimulation(nodes)
@@ -83,11 +85,14 @@ export function ForceGraph(
         .force("link", forceLink)
         .force("center", d3.forceCenter())
         //.force("cluster", forceCluster(0.02))
-        .force("collide", d3.forceCollide(nodeRadius * 2).strength(0.5))
-        .force("position", forcePosition(0.1))
+        .force("collide", d3.forceCollide(nodeRadius * 2).strength(forceCollideStrength))
         .on("tick", ticked)
         .alphaTarget(alphaTarget)
         .alphaDecay(0.01)
+
+    if (forcePositionStrength > 0) {
+        simulation.force("position", forcePosition(forcePositionStrength))
+    }
 
     function forcePosition(strength = 0.1) {
         let nodes;
