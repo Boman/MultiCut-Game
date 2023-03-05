@@ -1,4 +1,8 @@
 {
+    "name": "Grid 3 x 3",
+    "forceNodeStrength": -100,
+    "forceLinkStrength": 0.5,
+    "forceCollide": 0.5,
     "nodes": [
         {
             "id": "x0,y0"

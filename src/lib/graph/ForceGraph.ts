@@ -74,7 +74,7 @@ export function ForceGraph(
     const color = d3.scaleOrdinal(G, colors);
 
     // Construct the forces.
-    const forceNode = d3.forceManyBody().strength(forceNodeStrength)//.theta(0.5)
+    const forceNode = d3.forceManyBody().strength(forceNodeStrength).theta(0.5)
     const forceLink = d3.forceLink(links).id(({ index: i }) => N[i]).strength(forceLinkStrength)
 
     const alphaTarget = 0.01

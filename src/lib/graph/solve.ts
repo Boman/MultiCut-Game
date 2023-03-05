@@ -15,16 +15,20 @@ export async function solveGraph(graph) {
     do {
         const { multicut, objectiveValue, variables, problem } = await solveLP(graph, constraints)
 
+        console.log("multicut: " + JSON.stringify(multicut))
+        console.log("objectiveValue: " + JSON.stringify(objectiveValue))
+
         let nodeLabeling = Array(graph.nodes.length).fill(-1)
         let label = 0
         while (nodeLabeling.includes(-1)) {
-            let visitNodes = [nodeLabeling.findIndex((x) => x == -1)]
+            let visitNodes = [nodeLabeling.findIndex((x) => x == -1)] // push unlabeled node to array for visiting
             while (visitNodes.length > 0) {
                 let nodeIndex = visitNodes.pop()!
                 if (nodeLabeling[nodeIndex] != label) {
                     nodeLabeling[nodeIndex] = label
+                    // add all nodes which are not cut off to visit nodes
                     for (let i = 0; i < graph.links.length; ++i) {
-                        if (multicut[i] == 0) {
+                        if (multicut[i] == 1) {
                             if (graph.links[i].source == graph.nodes[nodeIndex].id) {
                                 visitNodes.push(graph.nodes.findIndex((n) => n.id == graph.links[i].target))
                             }
@@ -35,16 +39,20 @@ export async function solveGraph(graph) {
                     }
                 }
             }
+            // cluster finished, start next cluster
             label += 1
         }
 
+        console.log("graph nodes: " + JSON.stringify(graph.nodes.map(n => n.id)))
+        console.log("nodeLabeling: " + JSON.stringify(nodeLabeling))
+
         multicutIsSolution = true
         for (let i = 0; i < graph.links.length; ++i) {
-            if (multicut[i] == 1 &&
+            if (multicut[i] == 0 &&
                 nodeLabeling[graph.nodes.findIndex((n) => n.id == graph.links[i].source)]
                 == nodeLabeling[graph.nodes.findIndex((n) => n.id == graph.links[i].target)]) {
                 let path = bfs(graph, multicut, i)
-                let constraint = path.map((j) => variables[j]).join(" + ") + " - " + variables[i] + " >= 0"
+                let constraint = path.map((j) => (variables[j])).join(" + ") + " - " + variables[i] + " <= " + (path.length - 1)
                 constraintsList.push("constraint" + (constraintsList.length) + ": " + constraint)
                 multicutIsSolution = false
             }
@@ -55,7 +63,7 @@ export async function solveGraph(graph) {
         if (n % 5 == 0) {
             console.log("solving step: " + n)
         }
-    } while (!multicutIsSolution)
+    } while (!multicutIsSolution && n < 3)
     console.log("complete solving steps: " + n)
     console.log("vars: " + JSON.stringify(graph.links.map(l => l.value)))
     console.log("problem: " + solution.problem)
@@ -80,6 +88,8 @@ async function solveLP(graph, constraints) {
     Binaries
     `+ variables.join(' ') + `
     End`
+
+    console.log(problem)
 
     const solution = await highs_solve(problem)
 
@@ -113,7 +123,7 @@ function bfs(graph, multicut, index) {
         let node = queue.shift();
         //...for all neighboring nodes that haven't been visited yet....
         for (let i = 0; i < graph.links.length; i++) {
-            if (multicut[i] == 0 && graph.links[i].source == graph.nodes[node].id && !visited[graph.nodes.findIndex((n) => n.id == graph.links[i].target)]) {
+            if (multicut[i] == 1 && graph.links[i].source == graph.nodes[node].id && !visited[graph.nodes.findIndex((n) => n.id == graph.links[i].target)]) {
                 // Do whatever you want to do with the node here.
                 // Visit it, set the distance and add it to the queue
                 let newNode = graph.nodes.findIndex((n) => n.id == graph.links[i].target)
@@ -122,7 +132,7 @@ function bfs(graph, multicut, index) {
                 paths[newNode].push(i)
                 queue.push(newNode)
             }
-            if (multicut[i] == 0 && graph.links[i].target == graph.nodes[node].id && !visited[graph.nodes.findIndex((n) => n.id == graph.links[i].source)]) {
+            if (multicut[i] == 1 && graph.links[i].target == graph.nodes[node].id && !visited[graph.nodes.findIndex((n) => n.id == graph.links[i].source)]) {
                 // Do whatever you want to do with the node here.
                 // Visit it, set the distance and add it to the queue
                 let newNode = graph.nodes.findIndex((n) => n.id == graph.links[i].source)
