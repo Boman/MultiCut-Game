@@ -1,3 +1,24 @@
+<style>
+    .blob {
+        transform: scale(1);
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% {
+            transform: scale(0.95);
+        }
+
+        70% {
+            transform: scale(6);
+        }
+
+        100% {
+            transform: scale(0.95);
+        }
+    }
+</style>
+
 <script lang="ts">
     import * as d3 from 'd3'
     import _ from 'lodash'
@@ -58,5 +79,15 @@
 <svelte:window />
 
 <svg bind:this={svg} transition:fly={{y: 20, duration: 1500}} width={$clientX} height={$clientY} viewBox="{-$clientX / 2} {-$clientY / 2} {$clientX} {$clientY}">
+    <defs>
+        <radialGradient id="g">
+            <stop stop-color="#fff999" offset="0.8" />
+            <stop stop-color="#fff999" offset="1" stop-opacity="0.0" />
+        </radialGradient>
+        <filter id="sofGlow" width="100%" height="100%" x="-100%" y="-100%">
+            <!-- Use a gaussian blur to create the soft blurriness of the glow -->
+            <feGaussianBlur in="thicken" stdDeviation="5" result="blurred" />
+        </filter>
+    </defs>
     <g bind:this={content} shape-rendering="auto" {transform} />
 </svg>

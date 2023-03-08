@@ -186,19 +186,36 @@ export function ForceGraph(
         .attr("alignment-baseline", "central")
         .text((d, i) => links[i].value)
 
-    const node = svg
+    var node_group = svg.selectAll(".node_group")
+        .data(nodes)
+        .enter()
         .append("g")
+        .call(drag(simulation))
+
+    const nodeGlow = node_group
+        .append("circle")
+        .attr("class", "blob")
+        .attr("fill", "url(#g)")
+        .attr("visibility", "hidden")
+        .attr("r", nodeRadius)
+
+    nodeGlow.append("animateTransform")
+        .attr("attributeName", "transform")
+        .attr("type", "scale")
+        .attr("keyTimes", "0;0.5;1")
+        .attr("values", "1;1.6;1")
+        .attr("dur", "1600ms")
+        .attr("repeatCount", "indefinite")
+
+    const node = node_group
+        .append("circle")
         .attr("fill", nodeFill)
         .attr("stroke", nodeStroke)
         .attr("stroke-opacity", nodeStrokeOpacity)
         .attr("stroke-width", nodeStrokeWidth)
-        .selectAll("circle")
-        .data(nodes)
-        .join("circle")
         .attr("r", nodeRadius)
-        .call(drag(simulation))
         .on("click", click)
-        .on("dblclick", dblclick);
+        .on("dblclick", dblclick)
 
     if (W) link.attr("stroke-width", ({ index: i }) => W[i]);
     if (L) link.attr("stroke", ({ index: i }) => L[i]);
@@ -223,7 +240,7 @@ export function ForceGraph(
             .attr("x2", (d) => d.target.x)
             .attr("y2", (d) => d.target.y);
 
-        node.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
+        node_group.attr("transform", (d) => "translate(" + d.x + "," + d.y + ")")
 
         link_annotations.attr("transform", function (d, i) {
             var line_node = d3.select("#link_" + i)
@@ -327,7 +344,7 @@ export function ForceGraph(
                     if (clickedNode != -1 && (G[clickedNode] != G[i] && clickedNode != i))
                         saturation = 0.32
                     return saturate(color(G[i]), saturation)
-                });
+                })
         }
         if (L) {
             link.attr("stroke",
