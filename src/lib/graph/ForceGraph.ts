@@ -517,10 +517,18 @@ export function ForceGraph(
         }
     }
 
+    function action(action) {
+        if (action.action == 'select') {
+            clickedNode = action.aNode
+            highlightNode()
+        }
+    }
+
     return {
         stop: stop,
         glowNode: glowNode,
         restrictActions: restrictActions,
-        addRestrictionCheckedHandler: addRestrictionCheckedHandler
+        addRestrictionCheckedHandler: addRestrictionCheckedHandler,
+        action: action
     }
 }

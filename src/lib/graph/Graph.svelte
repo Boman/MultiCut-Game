@@ -16,6 +16,13 @@
     let d3Svg
     let fg
     export let tutorialText = ''
+    export let showWinScreen
+
+    $: if (fg) {
+        if (showWinScreen) {
+            fg.action({action: 'select', aNode: -1})
+        }
+    }
 
     function zoomed(e) {
         const t = e.transform
@@ -77,7 +84,7 @@
                                         fg.restrictActions([{action: 'detach', aNode: 3}])
                                         fg.addRestrictionCheckedHandler(restriction => {
                                             if (_.isEqual(restriction, {action: 'detach', aNode: 3})) {
-                                                tutorialText = 'Supreme! Now there is only one last line to connect to solve the multicut. Select a highlighted node.'
+                                                tutorialText = 'Supreme! Now there is only one last line to connect to solve the multicut. Select one of the highlighted nodes.'
                                                 fg.glowNode([2, 4])
                                                 fg.restrictActions([
                                                     {action: 'select', aNode: 2},
@@ -86,11 +93,11 @@
                                                 fg.addRestrictionCheckedHandler(restriction => {
                                                     if (_.isEqual(restriction, {action: 'select', aNode: 2}) || _.isEqual(restriction, {action: 'select', aNode: 4})) {
                                                         let nextNode = restriction.aNode == 4 ? 2 : 4
-                                                        tutorialText = 'Now connect the highlighted node..'
+                                                        tutorialText = 'Now connect the other highlighted node..'
                                                         fg.glowNode([nextNode])
                                                         fg.restrictActions([{action: 'brush', aNode: nextNode}])
                                                         fg.addRestrictionCheckedHandler(restriction => {
-                                                            if (_.isEqual(restriction, {action: 'detach', aNode: nextNode})) {
+                                                            if (_.isEqual(restriction, {action: 'brush', aNode: nextNode})) {
                                                                 tutorialText = undefined
                                                                 fg.glowNode([])
                                                             }

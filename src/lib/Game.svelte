@@ -25,7 +25,7 @@
     let solution = {}
     let tutorialText
 
-    $: $loadedGraph, $optimalScore = -1
+    $: $loadedGraph, ($optimalScore = -1)
     $: (async () => {
         if ($loadedGraph != null) {
             solution = await solveGraph($loadedGraph)
@@ -34,7 +34,7 @@
     $: $optimalScore = solution.objectiveValue || -1
 
     $: showLoadingScreen = Boolean(!$loadedGraph)
-    $: canRestart = true//gameConfiguration.restart ?? true
+    $: canRestart = true //gameConfiguration.restart ?? true
 
     $: showWinScreen = $optimalScore == $score
     $: showMenu = showWinScreen
@@ -64,7 +64,7 @@
 <UI bind:this={ui} {graph} {restart} {newGame} {showWinScreen} {canRestart} {gameConfiguration} bind:interfaceLoaded bind:showMenu bind:tutorialText />
 
 {#if $loadedGraph && interfaceLoaded}
-    <Graph bind:this={graph}  bind:tutorialText />
+    <Graph bind:this={graph} {showWinScreen} bind:tutorialText />
 {/if}
 
 {#if showLoadingScreen}

@@ -87,7 +87,7 @@
 
 {#if tutorialText}
     {#key tutorialText}
-        <div class="absolute bottom-0 px-40 flex flex-col items-center justify-center w-full pointer-events-none z-50">
+        <div class="absolute bottom-0 px-20 flex flex-col items-center justify-center w-full pointer-events-none z-50">
             <div
                 transition:fly={{y: 200, duration: 2000}}
                 class="flex items-center justify-between p-4 mb-6 shadow-md pointer-events-auto shrink-0 ring-offset-4 ring-offset-black bg-foreground text-background rounded-xl ring-4 ring-yellow"
