@@ -1,3 +1,13 @@
+<style>
+    /* prevent long tap from selecting stuff */
+    .noSelect {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+</style>
+
 <script lang="ts">
     import * as d3 from 'd3'
     import _ from 'lodash'
@@ -62,7 +72,7 @@
                 score: s => ($score = s)
             })
             if (graph.name == 'Tutorial') {
-                tutorialText = 'Your mission is to collect as many points as possible by connecting green lines while keeping the red lines disconnected. First select the highlighted node.'
+                tutorialText = 'Your mission is to collect as many points as possible by connecting green lines while keeping the red lines disconnected. First tap on the highlighted node.'
                 fg.glowNode([1])
                 fg.restrictActions([{action: 'select', aNode: 1}])
                 fg.addRestrictionCheckedHandler(restriction => {
@@ -121,16 +131,18 @@
 
 <svelte:window />
 
-<svg bind:this={svg} transition:fly={{y: 20, duration: 1500}} width={$clientX} height={$clientY} viewBox="{-$clientX / 2} {-$clientY / 2} {$clientX} {$clientY}">
-    <defs>
-        <radialGradient id="g">
-            <stop stop-color="#fff999" offset="0.8" />
-            <stop stop-color="#fff999" offset="1" stop-opacity="0.0" />
-        </radialGradient>
-        <filter id="sofGlow" width="100%" height="100%" x="-100%" y="-100%">
-            <!-- Use a gaussian blur to create the soft blurriness of the glow -->
-            <feGaussianBlur in="thicken" stdDeviation="5" result="blurred" />
-        </filter>
-    </defs>
-    <g bind:this={content} shape-rendering="auto" {transform} />
-</svg>
+<div class="noSelect">
+    <svg bind:this={svg} transition:fly={{y: 20, duration: 1500}} width={$clientX} height={$clientY} viewBox="{-$clientX / 2} {-$clientY / 2} {$clientX} {$clientY}">
+        <defs>
+            <radialGradient id="g">
+                <stop stop-color="#fff777" offset="0.8" />
+                <stop stop-color="#fff777" offset="1" stop-opacity="0.0" />
+            </radialGradient>
+            <filter id="sofGlow" width="100%" height="100%" x="-100%" y="-100%">
+                <!-- Use a gaussian blur to create the soft blurriness of the glow -->
+                <feGaussianBlur in="thicken" stdDeviation="5" result="blurred" />
+            </filter>
+        </defs>
+        <g bind:this={content} shape-rendering="auto" {transform} />
+    </svg>
+</div>

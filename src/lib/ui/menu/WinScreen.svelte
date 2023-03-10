@@ -8,6 +8,8 @@
     export let correct
     export let originalToFind
     export let gameConfiguration
+    export let startTime
+    export let endTime
 </script>
 
 <div class="flex flex-col justify-start p-4 mb-8 text-xl border-4 rounded-md shadow-md bg-background border-background-dark ring-4 ring-green">
@@ -15,7 +17,8 @@
         <div class="flex flex-col flex-1 w-full">
             <span in:fly={{x: -10, delay: 800}} class="flex items-center justify-start text-green">
                 <IconCheckmark />
-                    <span class="ml-1">All found!</span>
+                <span class="ml-1">Solved!</span>
+                <span class="ml-1">It took {(endTime - startTime) / 1000} seconds to solve.</span>
             </span>
         </div>
     </div>

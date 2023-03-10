@@ -3,7 +3,6 @@
     import {onMount} from 'svelte'
 
     import graphData from '$lib/assets/campaign/00_tutorial.json'
-    //import graphData from '$lib/assets/campaign/04_l15.json'
     import Graph from '$lib/graph/Graph.svelte'
     import {solveGraph} from '$lib/graph/solve.ts'
     import {clientX, clientY, optimalScore, loadedGraph, mousePos, score} from '$lib/store'
@@ -24,8 +23,10 @@
     }
     let solution = {}
     let tutorialText
+    let startTime
+    let endTime
 
-    $: $loadedGraph, ($optimalScore = -1)
+    $: $loadedGraph, reset()
     $: (async () => {
         if ($loadedGraph != null) {
             solution = await solveGraph($loadedGraph)
@@ -36,12 +37,22 @@
     $: showLoadingScreen = Boolean(!$loadedGraph)
     $: canRestart = true //gameConfiguration.restart ?? true
 
-    $: showWinScreen = $optimalScore == $score
-    $: showMenu = showWinScreen
+    $: if ($optimalScore == $score) {
+        endTime = Date.now()
+        showWinScreen = true
+        showMenu = true
+    }
 
     function restart() {
-        showWinScreen = false
         $loadedGraph = $loadedGraph
+        reset()
+    }
+
+    function reset() {
+        console.log('reset')
+        showWinScreen = false
+        $optimalScore = solution.objectiveValue || -1
+        startTime = Date.now()
     }
 
     function newGame(configuration) {
@@ -61,7 +72,7 @@
 
 <svelte:window on:mousemove={handleMousemove} bind:innerWidth={$clientX} bind:innerHeight={$clientY} />
 
-<UI bind:this={ui} {graph} {restart} {newGame} {showWinScreen} {canRestart} {gameConfiguration} bind:interfaceLoaded bind:showMenu bind:tutorialText />
+<UI bind:this={ui} {graph} {restart} {newGame} {startTime} {endTime} {showWinScreen} {canRestart} {gameConfiguration} bind:interfaceLoaded bind:showMenu bind:tutorialText />
 
 {#if $loadedGraph && interfaceLoaded}
     <Graph bind:this={graph} {showWinScreen} bind:tutorialText />
