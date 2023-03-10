@@ -14,6 +14,7 @@
     export let interfaceLoaded = false
     export let showWinScreen
     export let graph
+    export let tutorialText
 
     function toggleFullScreen() {
         const html = document.querySelector('#svelte')
@@ -83,3 +84,25 @@
 {/if}
 
 <Notifications />
+
+{#if tutorialText}
+    {#key tutorialText}
+        <div class="absolute bottom-0 px-40 flex flex-col items-center justify-center w-full pointer-events-none z-50">
+            <div
+                transition:fly={{y: 200, duration: 2000}}
+                class="flex items-center justify-between p-4 mb-6 shadow-md pointer-events-auto shrink-0 ring-offset-4 ring-offset-black bg-foreground text-background rounded-xl ring-4 ring-yellow"
+            >
+                <div class="flex items-center">
+                    <div class="mx-4 text-lg">
+                        <h1 class="text-sm">{tutorialText}</h1>
+                    </div>
+                </div>
+                <!--
+            <button on:click={() => {}} class="items-start transition-all rounded-full opacity-50 cursor-pointer hover:opacity-80">
+                <IconArrowHeadRight />
+            </button>
+            -->
+            </div>
+        </div>
+    {/key}
+{/if}

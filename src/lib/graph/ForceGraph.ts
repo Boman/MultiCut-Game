@@ -153,7 +153,7 @@ export function ForceGraph(
         .selectAll("line")
         .data(links)
         .join("line")
-        .attr("id", ({ index: i }) => "link_" + i);
+        .attr("id", ({ index: i }) => "link_" + i)
 
     var link_annotations = svg.selectAll(".link_annotations")
         .data(links)
@@ -198,6 +198,7 @@ export function ForceGraph(
         .attr("fill", "url(#g)")
         .attr("visibility", "hidden")
         .attr("r", nodeRadius)
+        .attr("id", ({ index: i }) => "node_glow_" + i)
 
     nodeGlow.append("animateTransform")
         .attr("attributeName", "transform")
@@ -301,13 +302,18 @@ export function ForceGraph(
                 // filter nodes which are in the radius of the drag position
                 let filteredNodes = nodes.filter(n => n != event.subject && Math.sqrt(Math.pow(n.x - event.x, 2) + Math.pow(n.y - event.y, 2)) < nodeRadius);
                 if (G && filteredNodes.length == 1) {
-                    G[nodes.indexOf(filteredNodes[0])] = G[nodes.indexOf(event.subject)]
-                    if (event.subject.beforeDragX) {
-                        event.subject.x = event.subject.beforeDragX;
-                        event.subject.y = event.subject.beforeDragY;
+                    let newIndex = nodes.indexOf(filteredNodes[0])
+                    if (G[newIndex] != G[nodes.indexOf(event.subject)]) {
+                        if (checkRestriction({ action: 'brush', aNode: newIndex })) {
+                            G[newIndex] = G[nodes.indexOf(event.subject)]
+                            if (event.subject.beforeDragX) {
+                                event.subject.x = event.subject.beforeDragX;
+                                event.subject.y = event.subject.beforeDragY;
+                            }
+                            highlightNode()
+                            calcScore()
+                        }
                     }
-                    highlightNode()
-                    calcScore()
                 }
             }
         }
@@ -332,8 +338,10 @@ export function ForceGraph(
 
     function click(event, d) {
         let i: number = nodes.indexOf(d)
-        clickedNode = i
-        highlightNode()
+        if (checkRestriction({ action: 'select', aNode: i })) {
+            clickedNode = i
+            highlightNode()
+        }
     }
 
     function highlightNode() {
@@ -395,13 +403,15 @@ export function ForceGraph(
         let i: number = nodes.indexOf(d);
         // if node is not a singleton
         if (G.filter(x => x == G[i]).length > 1) {
-            // compute new color index for node to be excluded from color group
-            let n = Array.from(Array(nodes.length).keys()).filter(x => !G.includes(x));
-            if (n.length > 0) {
-                G[i] = n[0];
-                clickedNode = -1;
-                highlightNode();
-                calcScore()
+            if (checkRestriction({ action: 'detach', aNode: i })) {
+                // compute new color index for node to be excluded from color group
+                let n = Array.from(Array(nodes.length).keys()).filter(x => !G.includes(x));
+                if (n.length > 0) {
+                    G[i] = n[0];
+                    clickedNode = -1;
+                    highlightNode();
+                    calcScore()
+                }
             }
         }
         event.stopImmediatePropagation()
@@ -463,7 +473,54 @@ export function ForceGraph(
         simulation.stop()
     }
 
+    function glowNode(glowNodes) {
+        nodeGlow.attr("visibility", function (d, i) {
+            if (glowNodes.some(n => i == n)) {
+                return "visible"
+            } else {
+                return "hidden"
+            }
+        })
+    }
+
+    let restrictions = []
+
+    function restrictActions(newRestrictions) {
+        restrictions = newRestrictions
+    }
+
+    function checkRestriction(restriction) {
+        let { action, aNode } = restriction
+        if (restrictions.length == 0) {
+            return true
+        }
+        for (let r of restrictions) {
+            if (r.action == action) {
+                if (aNode == r.aNode) {
+                    handleRestrictionChecked(restriction)
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
+    let restrictionCheckedHandlers = []
+
+    function addRestrictionCheckedHandler(restrictionCheckedHandler) {
+        restrictionCheckedHandlers.push(restrictionCheckedHandler)
+    }
+
+    function handleRestrictionChecked(restriction) {
+        for (let rch of restrictionCheckedHandlers) {
+            rch(restriction)
+        }
+    }
+
     return {
-        stop: stop
+        stop: stop,
+        glowNode: glowNode,
+        restrictActions: restrictActions,
+        addRestrictionCheckedHandler: addRestrictionCheckedHandler
     }
 }

@@ -15,8 +15,8 @@ export async function solveGraph(graph) {
     do {
         const { multicut, objectiveValue, variables, problem } = await solveLP(graph, constraints)
 
-        console.log("multicut: " + JSON.stringify(multicut))
-        console.log("objectiveValue: " + JSON.stringify(objectiveValue))
+        //console.log("multicut: " + JSON.stringify(multicut))
+        //console.log("objectiveValue: " + JSON.stringify(objectiveValue))
 
         let nodeLabeling = Array(graph.nodes.length).fill(-1)
         let label = 0
@@ -43,8 +43,8 @@ export async function solveGraph(graph) {
             label += 1
         }
 
-        console.log("graph nodes: " + JSON.stringify(graph.nodes.map(n => n.id)))
-        console.log("nodeLabeling: " + JSON.stringify(nodeLabeling))
+        //console.log("graph nodes: " + JSON.stringify(graph.nodes.map(n => n.id)))
+        //console.log("nodeLabeling: " + JSON.stringify(nodeLabeling))
 
         multicutIsSolution = true
         for (let i = 0; i < graph.links.length; ++i) {
@@ -60,13 +60,10 @@ export async function solveGraph(graph) {
         constraints = constraintsList.join("\n")
         solution = { multicut, objectiveValue, problem }
         n += 1
-        if (n % 5 == 0) {
-            console.log("solving step: " + n)
-        }
     } while (!multicutIsSolution && n < 3)
-    console.log("complete solving steps: " + n)
-    console.log("vars: " + JSON.stringify(graph.links.map(l => l.value)))
-    console.log("problem: " + solution.problem)
+    //console.log("complete solving steps: " + n)
+    //console.log("vars: " + JSON.stringify(graph.links.map(l => l.value)))
+    //console.log("problem: " + solution.problem)
 
     return solution
 }
@@ -89,7 +86,7 @@ async function solveLP(graph, constraints) {
     `+ variables.join(' ') + `
     End`
 
-    console.log(problem)
+    //console.log(problem)
 
     const solution = await highs_solve(problem)
 
