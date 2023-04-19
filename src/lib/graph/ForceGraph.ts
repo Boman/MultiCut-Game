@@ -1,5 +1,7 @@
 import * as d3 from "d3";
 
+import { tapSound, ploppSound } from '$lib/sounds'
+
 // Copyright 2021 Observable, Inc.
 // Released under the ISC license.
 // https://observablehq.com/@d3/force-directed-graph
@@ -306,6 +308,7 @@ export function ForceGraph(
                     if (G[newIndex] != G[nodes.indexOf(event.subject)]) {
                         if (checkRestriction({ action: 'brush', aNode: newIndex })) {
                             G[newIndex] = G[nodes.indexOf(event.subject)]
+                            ploppSound.play()
                             if (event.subject.beforeDragX) {
                                 event.subject.x = event.subject.beforeDragX;
                                 event.subject.y = event.subject.beforeDragY;
@@ -411,6 +414,7 @@ export function ForceGraph(
                     clickedNode = -1;
                     highlightNode();
                     calcScore()
+                    tapSound.play()
                 }
             }
         }

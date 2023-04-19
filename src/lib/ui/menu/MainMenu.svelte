@@ -51,7 +51,6 @@
             restart()
             toggleMenu()
         }}
-        disabled={!canRestart}
         class="p-2 mb-2 text-xl text-black transition-colors rounded-md bg-foreground-light hover:bg-background hover:text-foreground disabled:opacity-30 disabled:hover:bg-foreground disabled:hover:text-background"
     >
         RESTART

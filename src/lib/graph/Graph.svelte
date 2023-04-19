@@ -18,8 +18,6 @@
 
     import {ForceGraph} from '$lib/graph/ForceGraph.ts'
 
-    import IconArrowHeadRight from '$lib/icons/IconArrowHeadRight.svelte'
-
     let transform = d3.zoomIdentity
     let svg
     let content

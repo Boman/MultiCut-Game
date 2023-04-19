@@ -8,39 +8,27 @@
     import {clientX, clientY, optimalScore, loadedGraph, mousePos, score} from '$lib/store'
     import LoadingScreen from '$lib/ui/LoadingScreen.svelte'
     import UI from '$lib/ui/UI.svelte'
+    import {finishSound} from '$lib/sounds'
 
     let interfaceLoaded = false
     let showMenu: boolean
     let showWinScreen = false
-    let ui
     let graph
-    let gameConfiguration = {
-        mode: 'dailyQuest',
-        randomize: false,
-        possibleCountries: 'all',
-        restart: false,
-        maxGuesses: 5
-    }
     let solution = {}
     let tutorialText
     let startTime
     let endTime
 
     $: $loadedGraph, reset()
-    $: (async () => {
-        if ($loadedGraph != null) {
-            solution = await solveGraph($loadedGraph)
-        }
-    })()
     $: $optimalScore = solution.objectiveValue || -1
 
     $: showLoadingScreen = Boolean(!$loadedGraph)
-    $: canRestart = true //gameConfiguration.restart ?? true
 
     $: if ($optimalScore == $score) {
         endTime = Date.now()
         showWinScreen = true
         showMenu = true
+        finishSound.play()
     }
 
     function restart() {
@@ -51,14 +39,13 @@
     function reset() {
         console.log('reset')
         showWinScreen = false
-        $optimalScore = solution.objectiveValue || -1
+        solution = {}
         startTime = Date.now()
-    }
-
-    function newGame(configuration) {
-        gameConfiguration = configuration
-
-        if (configuration?.restart ?? true) restart()
+        if ($loadedGraph != null) {
+            ;(async () => {
+                solution = await solveGraph($loadedGraph)
+            })()
+        }
     }
 
     function handleMousemove(e) {
@@ -72,7 +59,7 @@
 
 <svelte:window on:mousemove={handleMousemove} bind:innerWidth={$clientX} bind:innerHeight={$clientY} />
 
-<UI bind:this={ui} {graph} {restart} {newGame} {startTime} {endTime} {showWinScreen} {canRestart} {gameConfiguration} bind:interfaceLoaded bind:showMenu bind:tutorialText />
+<UI {graph} {restart} {startTime} {endTime} {showWinScreen} bind:interfaceLoaded bind:showMenu bind:tutorialText />
 
 {#if $loadedGraph && interfaceLoaded}
     <Graph bind:this={graph} {showWinScreen} bind:tutorialText />

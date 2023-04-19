@@ -61,7 +61,7 @@ export async function solveGraph(graph) {
         solution = { multicut, objectiveValue, problem }
         n += 1
     } while (!multicutIsSolution && n < 3)
-    //console.log("complete solving steps: " + n)
+    console.log("complete solving steps: " + n)
     //console.log("vars: " + JSON.stringify(graph.links.map(l => l.value)))
     //console.log("problem: " + solution.problem)
 
