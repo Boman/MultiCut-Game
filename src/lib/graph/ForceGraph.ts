@@ -39,15 +39,13 @@ export function ForceGraph(
     const LS = d3.map(links, linkSource).map(intern);
     const LT = d3.map(links, linkTarget).map(intern);
     const LV = d3.map(links, linkValue).map(intern);
-    if (nodeTitle === undefined) nodeTitle = (_, i) => N[i];
-    const T = nodeTitle == null ? null : d3.map(nodes, nodeTitle);
-    const G = Array.from(Array(nodes.length).keys());
-    const W =
-        typeof linkStrokeWidth !== "function"
-            ? null
-            : d3.map(links, linkStrokeWidth);
-    const L =
-        typeof linkStroke !== "function" ? null : d3.map(d3.map(links, linkStroke), d3.color);
+    const nodeColoring = Array(nodes.length).fill(-1)
+    const W = typeof linkStrokeWidth !== "function" ? null : d3.map(links, linkStrokeWidth);
+    const L = typeof linkStroke !== "function" ? null : d3.map(d3.map(links, linkStroke), d3.color);
+
+    function intern(value) {
+        return value !== null && typeof value === "object" ? value.valueOf() : value;
+    }
 
     // Replace the input nodes and links with mutable objects for the simulation.
     //nodes = JSON.parse(JSON.stringify(nodes))
@@ -71,9 +69,8 @@ export function ForceGraph(
         }
     }
 
-
     // Construct the scales.
-    const color = d3.scaleOrdinal(G, colors);
+    const color = d3.scaleOrdinal(nodeColoring, colors);
 
     // Construct the forces.
     const forceNode = d3.forceManyBody().strength(forceNodeStrength).theta(0.5)
@@ -81,12 +78,12 @@ export function ForceGraph(
 
     const alphaTarget = 0.01
 
+    // many body simulation is the main part of the force layout
     const simulation = d3
         .forceSimulation(nodes)
         .force("charge", forceNode)
         .force("link", forceLink)
         .force("center", d3.forceCenter())
-        //.force("cluster", forceCluster(0.02))
         .force("collide", d3.forceCollide(nodeRadius * 2).strength(forceCollideStrength))
         .on("tick", ticked)
         .alphaTarget(alphaTarget)
@@ -114,6 +111,7 @@ export function ForceGraph(
         return force
     }
 
+    // helper function for placing nodes in x/y plane
     function bounds(nodes) {
         let minX = nodes[0].x
         let minY = nodes[0].y
@@ -128,13 +126,14 @@ export function ForceGraph(
         return { minX: minX, minY: minY, maxX: maxX, maxY: maxY };
     }
 
+    // svg visualisation elements
+
     var background = svg.append("rect")
         .attr("x", -width / 2)
         .attr("y", -height / 2)
         .attr("width", width)
         .attr("height", height)
         .attr("style", "fill: black; fill-opacity: 0.0")
-        //.call(dragBackground(simulation))
         .on("click", function (d) { click(d, null); })
 
     function linkStroke(l) {
@@ -222,21 +221,12 @@ export function ForceGraph(
 
     if (W) link.attr("stroke-width", ({ index: i }) => W[i]);
     if (L) link.attr("stroke", ({ index: i }) => L[i]);
-    if (G) node.attr("fill", ({ index: i }) => color(G[i]));
-    //if (T) node.append("title").text(({ index: i }) => T[i]);
 
 
     let clickedNode: number = -1
+    updateAfterMulticutChange()
 
-    calcScore()
-    highlightNode()
-
-    function intern(value) {
-        return value !== null && typeof value === "object"
-            ? value.valueOf()
-            : value;
-    }
-
+    // main loop for simulation
     function ticked() {
         link.attr("x1", (d) => d.source.x)
             .attr("y1", (d) => d.source.y)
@@ -249,36 +239,6 @@ export function ForceGraph(
             var line_node = d3.select("#link_" + i)
             return "translate(" + (parseInt(line_node.attr("x1")) + parseInt(line_node.attr("x2"))) / 2 + "," + (parseInt(line_node.attr("y1")) + parseInt(line_node.attr("y2"))) / 2 + ")"
         })
-    }
-
-    function dragBackground(simulation) {
-        function dragstarted(event) {
-        }
-
-        function dragged(event) {
-            let filteredNodes = nodes.filter(n => Math.sqrt(Math.pow(n.x - event.x, 2) + Math.pow(n.y - event.y, 2)) < nodeRadius);
-
-            if (filteredNodes.length > 0 && clickedNode != -1) {
-                filteredNodes.forEach(n => {
-                    updateNodeCluster(nodes.indexOf(n), clickedNode)
-                })
-            }
-        }
-
-        function dragended(event) {
-        }
-
-        return d3
-            .drag()
-            .on("start", dragstarted)
-            .on("drag", dragged)
-            .on("end", dragended);
-    }
-
-    function updateNodeCluster(newNode, clusterNode) {
-        G[newNode] = G[clusterNode];
-        highlightNode();
-        calcScore();
     }
 
     function drag(simulation) {
@@ -299,22 +259,30 @@ export function ForceGraph(
         function dragged(event) {
             event.subject.fx = event.x;
             event.subject.fy = event.y;
+            let eventNode = nodes.indexOf(event.subject)
 
             if (clickedNode != -1) {
                 // filter nodes which are in the radius of the drag position
                 let filteredNodes = nodes.filter(n => n != event.subject && Math.sqrt(Math.pow(n.x - event.x, 2) + Math.pow(n.y - event.y, 2)) < nodeRadius);
-                if (G && filteredNodes.length == 1) {
+                if (filteredNodes.length == 1) {
                     let newIndex = nodes.indexOf(filteredNodes[0])
-                    if (G[newIndex] != G[nodes.indexOf(event.subject)]) {
+                    if (nodeColoring[newIndex] != nodeColoring[eventNode] || nodeColoring[eventNode] == -1) {
                         if (checkRestriction({ action: 'brush', aNode: newIndex })) {
-                            G[newIndex] = G[nodes.indexOf(event.subject)]
+                            if (nodeColoring[eventNode] == -1) {
+                                // compute new color index for node to be excluded from color group
+                                let n = Array.from(Array(nodes.length).keys()).filter(x => !nodeColoring.includes(x));
+                                if (n.length > 0) {
+                                    nodeColoring[eventNode] = n[0];
+                                }
+                            }
+
+                            nodeColoring[newIndex] = nodeColoring[eventNode]
                             ploppSound.play()
                             if (event.subject.beforeDragX) {
                                 event.subject.x = event.subject.beforeDragX;
                                 event.subject.y = event.subject.beforeDragY;
                             }
-                            highlightNode()
-                            calcScore()
+                            updateAfterMulticutChange()
                         }
                     }
                 }
@@ -343,96 +311,109 @@ export function ForceGraph(
         let i: number = nodes.indexOf(d)
         if (checkRestriction({ action: 'select', aNode: i })) {
             clickedNode = i
-            highlightNode()
+            updateNodesAndLinksVisualisation()
         }
     }
 
-    function highlightNode() {
-        if (G) {
+    function updateNodesAndLinksVisualisation() {
+        if (nodeColoring) {
             node.attr("fill",
                 ({ index: i }) => {
                     let saturation = 1
-                    if (clickedNode != -1 && (G[clickedNode] != G[i] && clickedNode != i))
-                        saturation = 0.32
-                    return saturate(color(G[i]), saturation)
+                    if (clickedNode != -1 && clickedNode != i)
+                        if (nodeColoring[clickedNode] != nodeColoring[i] || nodeColoring[i] == -1)
+                            saturation = 0.32
+                    let nodeColor = nodeColoring[i] == -1 ? d3.color("grey") : color(nodeColoring[i])
+                    return saturate(nodeColor, saturation)
                 })
         }
         if (L) {
             link.attr("stroke",
                 ({ index: i }) => {
-                    let stroke_color = linkStroke(links[i])//d3.color("grey")
-                    let saturation = 1
-                    let opacity = 1
-                    if (G[nodes.indexOf(links[i].source)] == G[nodes.indexOf(links[i].target)]) {
-                        //stroke_color = color(G[nodes.indexOf(links[i].source)])
-                    }
-                    if (clickedNode != -1 &&
-                        G[nodes.indexOf(links[i].source)] != G[clickedNode] &&
-                        G[nodes.indexOf(links[i].target)] != G[clickedNode]) {
-                        saturation = 0.32
-                        opacity = 0.5
+                    let stroke_color = linkStroke(links[i])
+                    let saturation = 0.32
+                    let opacity = 0.5
+                    let source = nodes.indexOf(links[i].source)
+                    let target = nodes.indexOf(links[i].target)
+                    if (clickedNode == -1 ||
+                        clickedNode == source ||
+                        clickedNode == target ||
+                        (nodeColoring[clickedNode] != -1 && (nodeColoring[clickedNode] == nodeColoring[source] || nodeColoring[clickedNode] == nodeColoring[target]))) {
+                        saturation = 1
+                        opacity = 1
                     }
                     return opace(saturate(stroke_color, saturation), opacity)
                 })
             link_circles.attr("opacity",
                 ({ index: i }) => {
-                    let saturation = 1
-                    let opacity = clickedNode != -1 ? 1 : 0
-                    if (clickedNode != -1 &&
-                        G[nodes.indexOf(links[i].source)] != G[clickedNode] &&
-                        G[nodes.indexOf(links[i].target)] != G[clickedNode]) {
-                        saturation = 0.32
-                        opacity = 0.00
+                    let opacity = 0
+                    let source = nodes.indexOf(links[i].source)
+                    let target = nodes.indexOf(links[i].target)
+                    if (clickedNode != -1) {
+                        if (clickedNode == source ||
+                            clickedNode == target ||
+                            (nodeColoring[clickedNode] != -1 && (nodeColoring[clickedNode] == nodeColoring[source] || nodeColoring[clickedNode] == nodeColoring[target]))) {
+                            opacity = 1
+                        }
                     }
                     return opacity
                 })
             link_label.attr("opacity",
                 ({ index: i }) => {
-                    let saturation = 1
-                    let opacity = clickedNode != -1 ? 1 : 0
-                    if (clickedNode != -1 &&
-                        G[nodes.indexOf(links[i].source)] != G[clickedNode] &&
-                        G[nodes.indexOf(links[i].target)] != G[clickedNode]) {
-                        saturation = 0.32
-                        opacity = 0.0
+                    let opacity = 0
+                    let source = nodes.indexOf(links[i].source)
+                    let target = nodes.indexOf(links[i].target)
+                    if (clickedNode != -1) {
+                        if (clickedNode == source ||
+                            clickedNode == target ||
+                            (nodeColoring[clickedNode] != -1 && (nodeColoring[clickedNode] == nodeColoring[source] || nodeColoring[clickedNode] == nodeColoring[target]))) {
+                            opacity = 1
+                        }
                     }
                     return opacity
                 })
-            //link_annotations.sort((a, b) => )
         }
     }
 
     function dblclick(event, d) {
-        let i: number = nodes.indexOf(d);
+        let i: number = nodes.indexOf(d)
         // if node is not a singleton
-        if (G.filter(x => x == G[i]).length > 1) {
+        if (nodeColoring[i] != -1) {
             if (checkRestriction({ action: 'detach', aNode: i })) {
-                // compute new color index for node to be excluded from color group
-                let n = Array.from(Array(nodes.length).keys()).filter(x => !G.includes(x));
-                if (n.length > 0) {
-                    G[i] = n[0];
-                    clickedNode = -1;
-                    highlightNode();
-                    calcScore()
-                    tapSound.play()
-                }
+                nodeColoring[i] = -1
+                clickedNode = -1
+
+                updateAfterMulticutChange()
+                tapSound.play()
             }
         }
         event.stopImmediatePropagation()
     }
 
-    function calcScore() {
-        let s = 0
-        s = links.map(l => G[nodes.indexOf(l.source)] != G[nodes.indexOf(l.target)] ? 0 : l.value).reduce((a, b) => a + b)
+    function updateAfterMulticutChange() {
+        // separate singular nodes from clusters
+        let n = Array.from(Array(nodes.length).keys()).filter(x => nodeColoring.reduce((n, a) => n + (a == x), 0) == 1)
+        for (let i of n) {
+            nodeColoring[nodeColoring.indexOf(i)] = -1
+        }
 
+        calcScore()
+
+        updateNodesAndLinksVisualisation()
+
+        // visualise dashed line between nodes of different clusters/no cluster
         link.attr("stroke-dasharray", function (d, i) {
-            if (G[d.source.index] != G[d.target.index]) {
+            if (nodeColoring[d.source.index] == -1 || nodeColoring[d.source.index] != nodeColoring[d.target.index]) {
                 return "10, 30"
             } else {
                 return "10, 0"
             }
         })
+    }
 
+    function calcScore() {
+        let s = links.map(l => nodeColoring[nodes.indexOf(l.source)] != -1 && nodeColoring[nodes.indexOf(l.source)] != nodeColoring[nodes.indexOf(l.target)] ? 0 : l.value)
+            .reduce((a, b) => a + b)
         score(s)
     }
 
@@ -443,34 +424,6 @@ export function ForceGraph(
 
     function opace(color, opacity = 0) {
         return color.copy({ opacity: opacity })
-    }
-
-    function forceCluster(strength = 0.1) {
-        let nodes;
-
-        function force(alpha) {
-            const centroids = d3.rollup(nodes, centroid, d => G[nodes.indexOf(d)]);
-            const l = alpha * strength;
-            for (const d of nodes) {
-                const { x: cx, y: cy } = centroids.get(G[nodes.indexOf(d)]);
-                d.vx -= (d.x - cx) * l;
-                d.vy -= (d.y - cy) * l;
-            }
-        }
-
-        force.initialize = _ => nodes = _;
-
-        return force;
-    }
-
-    function centroid(nodes) {
-        let x = 0;
-        let y = 0;
-        for (const d of nodes) {
-            x += d.x;
-            y += d.y;
-        }
-        return { x: x, y: y };
     }
 
     function stop() {
@@ -487,6 +440,7 @@ export function ForceGraph(
         })
     }
 
+    // restrict user interactions for tutorial
     let restrictions = []
 
     function restrictActions(newRestrictions) {
@@ -524,7 +478,7 @@ export function ForceGraph(
     function action(action) {
         if (action.action == 'select') {
             clickedNode = action.aNode
-            highlightNode()
+            updateNodesAndLinksVisualisation()
         }
     }
 

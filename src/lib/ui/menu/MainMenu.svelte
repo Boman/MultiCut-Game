@@ -13,7 +13,6 @@
     export let restart
     export let toggleMenu
     export let showWinScreen
-    export let canRestart
     export let setActiveMenu
 </script>
 
