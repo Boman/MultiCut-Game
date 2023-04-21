@@ -412,7 +412,7 @@ export function ForceGraph(
     }
 
     function calcScore() {
-        let s = links.map(l => nodeColoring[nodes.indexOf(l.source)] != -1 && nodeColoring[nodes.indexOf(l.source)] != nodeColoring[nodes.indexOf(l.target)] ? 0 : l.value)
+        let s = links.map(l => nodeColoring[nodes.indexOf(l.source)] == -1 || nodeColoring[nodes.indexOf(l.source)] != nodeColoring[nodes.indexOf(l.target)] ? 0 : l.value)
             .reduce((a, b) => a + b)
         score(s)
     }
