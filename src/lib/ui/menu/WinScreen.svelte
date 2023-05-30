@@ -22,11 +22,11 @@
             </span>
         </div>
     </div>
-    <button class="flex group relative bg-background-dark text-foreground rounded mt-4 justify-center items-center p-2 font-bold">
+    <!--<button class="flex group relative bg-background-dark text-foreground rounded mt-4 justify-center items-center p-2 font-bold">
         <span
             class="absolute hidden group-hover:flex -top-2 -translate-y-full rounded-lg text-center text-foreground text-base py-2 px-4 bg-background-dark justify-center after:content-[''] after:absolute  after:top-[100%] after:border-8 after:border-x-transparent after:border-b-transparent after:border-background-dark"
         >
             next
         </span>
-    </button>
+    </button>-->
 </div>

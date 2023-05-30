@@ -1,13 +1,13 @@
 <script lang="ts">
     import IconInfo from '$lib/icons/IconInfo.svelte'
-    import IconLock from '$lib/icons/IconLock.svelte'
     import IconVolumeOff from '$lib/icons/IconVolumeOff.svelte'
     import IconVolumeUp from '$lib/icons/IconVolumeUp.svelte'
-    import {day, save, soundEffects, timeLeft, loadedGraph} from '$lib/store'
+    import {soundEffects} from '$lib/store'
     import AboutMenu from '$lib/ui/menu/AboutMenu.svelte'
     import CampaignMenu from '$lib/ui/menu/CampaignMenu.svelte'
     import NewRandomMenu from '$lib/ui/menu/NewRandomMenu.svelte'
     import NewLadderMenu from '$lib/ui/menu/NewLadderMenu.svelte'
+    import SettingsMenu from '$lib/ui/menu/SettingsMenu.svelte'
     import WinScreen from '$lib/ui/menu/WinScreen.svelte'
 
     export let restart
@@ -44,6 +44,14 @@
         class="p-2 mb-2 text-xl text-black transition-colors rounded-md bg-foreground-light hover:bg-background hover:text-foreground"
     >
         Möbius Ladder
+    </button>
+    <button
+        on:click={() => {
+            setActiveMenu(SettingsMenu)
+        }}
+        class="p-2 mb-2 text-xl text-black transition-colors rounded-md bg-foreground-light hover:bg-background hover:text-foreground"
+    >
+        Settings
     </button>
     <button
         on:click={() => {

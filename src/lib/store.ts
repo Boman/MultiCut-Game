@@ -10,6 +10,8 @@ const oneDay = 24 * 3600 * 1000
 export const loadedGraph = writable()
 
 // Settings
+export const nodeColoringMode = writable('select')
+export const keepForceLayout = writable(false)
 export const soundEffects = writable(true)
 
 // Game

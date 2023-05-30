@@ -108,6 +108,7 @@
                                                             if (_.isEqual(restriction, {action: 'brush', aNode: nextNode})) {
                                                                 tutorialText = undefined
                                                                 fg.glowNode([])
+                                                                fg.restrictActions([])
                                                             }
                                                         })
                                                     }

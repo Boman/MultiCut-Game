@@ -7,11 +7,12 @@ let highs_solve = async function (problem) {
 }
 
 export async function solveGraph(graph) {
+    let startTime = Date.now()
     let constraints = ""
     let solution
     let multicutIsSolution
     let constraintsList: string[] = []
-    let n = 0
+    let solvingSteps = 0
     do {
         const { multicut, objectiveValue, variables, problem } = await solveLP(graph, constraints)
 
@@ -59,13 +60,11 @@ export async function solveGraph(graph) {
         }
         constraints = constraintsList.join("\n")
         solution = { multicut, objectiveValue, problem }
-        n += 1
-    } while (!multicutIsSolution && n < 3)
-    console.log("complete solving steps: " + n)
-    //console.log("vars: " + JSON.stringify(graph.links.map(l => l.value)))
-    //console.log("problem: " + solution.problem)
+        solvingSteps += 1
+    } while (!multicutIsSolution)
 
-    return solution
+    let endTime = Date.now()
+    return { ...solution, solveTime: endTime - startTime, solvingSteps }
 }
 
 async function solveLP(graph, constraints) {
